@@ -2,7 +2,7 @@
 
 import { useEditorStore } from '@/stores/editor-store'
 import { CHARACTER_SETS, FONT_PRESETS } from '@/lib/constants'
-import type { CharacterSetName, ColorMode } from '@/lib/constants'
+import type { CharacterSetName, ColorMode, DitherMode } from '@/lib/constants'
 import type { BitDepth, AudioSampleRate } from '@/lib/audio-processor'
 import { Label } from '@/components/ui/label'
 import { Slider } from '@/components/ui/slider'
@@ -92,6 +92,59 @@ export function InputControls() {
           value={[store.contrastBoost]}
           onValueChange={(v) => store.setContrastBoost(sliderVal(v))}
         />
+      </div>
+
+      {/* Gamma */}
+      <div className="space-y-2">
+        <Label className="text-xs text-muted-foreground">
+          Gamma <span className="text-foreground ml-1">{store.gamma.toFixed(2)}</span>
+        </Label>
+        <Slider
+          disabled={disabled}
+          min={0.5}
+          max={2}
+          step={0.01}
+          value={[store.gamma]}
+          onValueChange={(v) => store.setGamma(sliderVal(v))}
+        />
+      </div>
+
+      {/* Invert Characters */}
+      <div className="flex items-center justify-between">
+        <Label className="text-xs text-muted-foreground">Invert Characters</Label>
+        <Switch
+          disabled={disabled}
+          checked={store.invertCharset}
+          onCheckedChange={store.setInvertCharset}
+        />
+      </div>
+
+      {/* Edge Detection */}
+      <div className="space-y-2">
+        <Label className="text-xs text-muted-foreground">
+          Edge Detection <span className="text-foreground ml-1">{store.edgeDetection}%</span>
+        </Label>
+        <Slider
+          disabled={disabled}
+          min={0}
+          max={100}
+          step={1}
+          value={[store.edgeDetection]}
+          onValueChange={(v) => store.setEdgeDetection(sliderVal(v))}
+        />
+      </div>
+
+      {/* Dithering */}
+      <div className="space-y-2">
+        <Label className="text-xs text-muted-foreground">Dithering</Label>
+        <Select value={store.ditherMode} onValueChange={(v) => v && store.setDitherMode(v as DitherMode)}>
+          <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">None</SelectItem>
+            <SelectItem value="floyd-steinberg">Floyd-Steinberg</SelectItem>
+            <SelectItem value="ordered">Ordered (Bayer)</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       <Separator />

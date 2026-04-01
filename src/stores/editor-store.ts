@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import {
   type CharacterSetName,
   type ColorMode,
+  type DitherMode,
   type ExportFormat,
   type ExportLoop,
   type PlaybackState,
@@ -25,6 +26,10 @@ interface EditorState {
   brightnessThreshold: number
   contrastBoost: number
   colorMode: ColorMode
+  invertCharset: boolean
+  gamma: number
+  edgeDetection: number
+  ditherMode: DitherMode
   foregroundColor: string
   backgroundColor: string
   fontFamily: string
@@ -78,6 +83,10 @@ interface EditorState {
   setBrightnessThreshold: (value: number) => void
   setContrastBoost: (value: number) => void
   setColorMode: (value: ColorMode) => void
+  setInvertCharset: (value: boolean) => void
+  setGamma: (value: number) => void
+  setEdgeDetection: (value: number) => void
+  setDitherMode: (value: DitherMode) => void
   setForegroundColor: (value: string) => void
   setBackgroundColor: (value: string) => void
   setFontFamily: (value: string) => void
@@ -125,6 +134,10 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   brightnessThreshold: DEFAULT_SETTINGS.brightnessThreshold,
   contrastBoost: DEFAULT_SETTINGS.contrastBoost,
   colorMode: DEFAULT_SETTINGS.colorMode,
+  invertCharset: DEFAULT_SETTINGS.invertCharset,
+  gamma: DEFAULT_SETTINGS.gamma,
+  edgeDetection: DEFAULT_SETTINGS.edgeDetection,
+  ditherMode: DEFAULT_SETTINGS.ditherMode,
   foregroundColor: DEFAULT_SETTINGS.foregroundColor,
   backgroundColor: DEFAULT_SETTINGS.backgroundColor,
   fontFamily: DEFAULT_SETTINGS.fontFamily,
@@ -199,6 +212,10 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   setBrightnessThreshold: (value) => set({ brightnessThreshold: value }),
   setContrastBoost: (value) => set({ contrastBoost: value }),
   setColorMode: (value) => set({ colorMode: value }),
+  setInvertCharset: (value) => set({ invertCharset: value }),
+  setGamma: (value) => set({ gamma: value }),
+  setEdgeDetection: (value) => set({ edgeDetection: value }),
+  setDitherMode: (value) => set({ ditherMode: value }),
   setForegroundColor: (value) => set({ foregroundColor: value }),
   setBackgroundColor: (value) => set({ backgroundColor: value }),
   setFontFamily: (value) => set({ fontFamily: value }),

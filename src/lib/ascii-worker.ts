@@ -2,24 +2,35 @@
 // This file is converted to a Blob URL and run in a Worker context
 
 const WORKER_CODE = `
+var BAYER_4X4 = [
+  [0, 8, 2, 10],
+  [12, 4, 14, 6],
+  [3, 11, 1, 9],
+  [15, 7, 13, 5]
+];
+var SOBEL_X = [[-1,0,1],[-2,0,2],[-1,0,1]];
+var SOBEL_Y = [[-1,-2,-1],[0,0,0],[1,2,1]];
+
 self.onmessage = function(e) {
   var d = e.data;
-  var result = convertFrame(d.pixels, d.width, d.height, d.columns, d.charset, d.brightnessThreshold, d.contrastBoost, d.colorMode);
+  var result = convertFrame(d.pixels, d.width, d.height, d.columns, d.charset, d.brightnessThreshold, d.contrastBoost, d.colorMode, d.gamma, d.edgeDetection, d.ditherMode, d.invertCharset);
   self.postMessage({ id: d.id, result: result });
 };
 
-function convertFrame(pixels, width, height, columns, charset, brightnessThreshold, contrastBoost, colorMode) {
+function convertFrame(pixels, width, height, columns, charset, brightnessThreshold, contrastBoost, colorMode, gamma, edgeDetection, ditherMode, invertCharset) {
   var cellWidth = width / columns;
   var rows = Math.max(1, Math.round((height / cellWidth) * 0.5));
   var cellHeight = height / rows;
   var invertBrightness = colorMode === 'inverted';
   var charCount = charset.length;
-  var cells = [];
-  var lines = [];
+
+  // Pass 1: Sample pixels, compute brightness grid
+  var brightnessGrid = [];
+  var rgbGrid = [];
 
   for (var row = 0; row < rows; row++) {
-    var rowCells = [];
-    var line = '';
+    var rowBrightness = [];
+    var rowRgb = [];
     var y0 = Math.floor(row * cellHeight);
     var y1 = Math.min(Math.floor((row + 1) * cellHeight), height);
 
@@ -51,10 +62,88 @@ function convertFrame(pixels, width, height, columns, charset, brightnessThresho
       brightness = Math.max(0, Math.min(255, brightness));
       if (invertBrightness) brightness = 255 - brightness;
 
-      var charIndex = Math.min(charCount - 1, Math.floor((brightness / 255) * (charCount - 1)));
-      var ch = charset[charIndex];
+      if (gamma !== 1.0) {
+        brightness = Math.pow(brightness / 255, gamma) * 255;
+      }
 
-      rowCells.push({ char: ch, r: avgR, g: avgG, b: avgB, brightness: brightness });
+      rowBrightness.push(brightness);
+      rowRgb.push({ r: avgR, g: avgG, b: avgB });
+    }
+    brightnessGrid.push(rowBrightness);
+    rgbGrid.push(rowRgb);
+  }
+
+  // Pass 2: Edge detection (Sobel)
+  if (edgeDetection > 0) {
+    var strength = edgeDetection / 100;
+    var edgeGrid = [];
+    for (var row = 0; row < rows; row++) {
+      var rowEdge = [];
+      for (var col = 0; col < columns; col++) {
+        var gx = 0, gy = 0;
+        for (var ky = -1; ky <= 1; ky++) {
+          for (var kx = -1; kx <= 1; kx++) {
+            var r = Math.max(0, Math.min(rows - 1, row + ky));
+            var c = Math.max(0, Math.min(columns - 1, col + kx));
+            var val = brightnessGrid[r][c];
+            gx += val * SOBEL_X[ky + 1][kx + 1];
+            gy += val * SOBEL_Y[ky + 1][kx + 1];
+          }
+        }
+        var magnitude = Math.min(255, Math.sqrt(gx * gx + gy * gy));
+        rowEdge.push(magnitude);
+      }
+      edgeGrid.push(rowEdge);
+    }
+    for (var row = 0; row < rows; row++) {
+      for (var col = 0; col < columns; col++) {
+        brightnessGrid[row][col] = brightnessGrid[row][col] * (1 - strength) + edgeGrid[row][col] * strength;
+      }
+    }
+  }
+
+  // Pass 3: Dithering
+  if (ditherMode === 'floyd-steinberg') {
+    var levels = charCount;
+    for (var row = 0; row < rows; row++) {
+      for (var col = 0; col < columns; col++) {
+        var old = brightnessGrid[row][col];
+        var quantized = Math.round((old / 255) * (levels - 1)) * (255 / (levels - 1));
+        var error = old - quantized;
+        brightnessGrid[row][col] = quantized;
+        if (col + 1 < columns) brightnessGrid[row][col + 1] += error * (7 / 16);
+        if (row + 1 < rows) {
+          if (col - 1 >= 0) brightnessGrid[row + 1][col - 1] += error * (3 / 16);
+          brightnessGrid[row + 1][col] += error * (5 / 16);
+          if (col + 1 < columns) brightnessGrid[row + 1][col + 1] += error * (1 / 16);
+        }
+      }
+    }
+  } else if (ditherMode === 'ordered') {
+    var levels = charCount;
+    var step = levels > 1 ? 255 / (levels - 1) : 255;
+    for (var row = 0; row < rows; row++) {
+      for (var col = 0; col < columns; col++) {
+        var threshold = (BAYER_4X4[row % 4][col % 4] / 16.0 - 0.5) * step;
+        brightnessGrid[row][col] += threshold;
+      }
+    }
+  }
+
+  // Pass 4: Map to characters
+  var cells = [];
+  var lines = [];
+
+  for (var row = 0; row < rows; row++) {
+    var rowCells = [];
+    var line = '';
+    for (var col = 0; col < columns; col++) {
+      var brightness = Math.max(0, Math.min(255, brightnessGrid[row][col]));
+      var charIndex = Math.min(charCount - 1, Math.floor((brightness / 255) * (charCount - 1)));
+      if (invertCharset) charIndex = charCount - 1 - charIndex;
+      var ch = charset[charIndex];
+      var rgb = rgbGrid[row][col];
+      rowCells.push({ char: ch, r: rgb.r, g: rgb.g, b: rgb.b, brightness: brightness });
       line += ch;
     }
     cells.push(rowCells);
@@ -65,7 +154,7 @@ function convertFrame(pixels, width, height, columns, charset, brightnessThresho
 `
 
 import type { AsciiFrame } from '@/lib/ascii-engine'
-import type { ColorMode } from '@/lib/constants'
+import type { ColorMode, DitherMode } from '@/lib/constants'
 
 let worker: Worker | null = null
 let workerUrl: string | null = null
@@ -97,6 +186,10 @@ export function convertFrameInWorker(
   brightnessThreshold: number,
   contrastBoost: number,
   colorMode: ColorMode,
+  gamma: number,
+  edgeDetection: number,
+  ditherMode: DitherMode,
+  invertCharset: boolean,
 ): Promise<AsciiFrame> {
   return new Promise((resolve) => {
     const w = getWorker()
@@ -117,6 +210,10 @@ export function convertFrameInWorker(
         brightnessThreshold,
         contrastBoost,
         colorMode,
+        gamma,
+        edgeDetection,
+        ditherMode,
+        invertCharset,
       },
       [pixels.buffer] as unknown as Transferable[],
     )

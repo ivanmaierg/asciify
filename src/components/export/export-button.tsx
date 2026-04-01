@@ -55,6 +55,10 @@ export function ExportButton() {
           brightnessThreshold: s.brightnessThreshold,
           contrastBoost: s.contrastBoost,
           colorMode: s.colorMode,
+          gamma: s.gamma,
+          edgeDetection: s.edgeDetection,
+          ditherMode: s.ditherMode,
+          invertCharset: s.invertCharset,
         },
         (p) => s.setExportProgress(p * 0.9), // 0-90% for extraction
       )

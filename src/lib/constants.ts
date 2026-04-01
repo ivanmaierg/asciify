@@ -14,6 +14,8 @@ export type PlaybackState = 'empty' | 'loading' | 'paused' | 'playing'
 
 export type ExportLoop = 'forever' | 'once' | number
 
+export type DitherMode = 'none' | 'floyd-steinberg' | 'ordered'
+
 export type ExportFormat = 'html' | 'webgpu' | 'apng' | 'svg' | 'ansi'
 
 export const EXPORT_FORMAT_LABELS: Record<ExportFormat, string> = {
@@ -46,6 +48,10 @@ export const DEFAULT_SETTINGS = {
   fontFamily: 'Courier New',
   fontSize: 12,
   frameSkip: 1,
+  invertCharset: false,
+  gamma: 1.0,
+  edgeDetection: 0,
+  ditherMode: 'none' as DitherMode,
   exportFps: 24,
   exportLoop: 'forever' as ExportLoop,
   exportAutoplay: true,

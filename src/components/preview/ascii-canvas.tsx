@@ -191,6 +191,10 @@ export function AsciiCanvas() {
       s.brightnessThreshold,
       s.contrastBoost,
       s.colorMode,
+      s.gamma,
+      s.edgeDetection,
+      s.ditherMode,
+      s.invertCharset,
     )
 
     // Try WebGPU first, fall back to Canvas2D
@@ -276,6 +280,10 @@ export function AsciiCanvas() {
     store.brightnessThreshold,
     store.contrastBoost,
     store.colorMode,
+    store.gamma,
+    store.edgeDetection,
+    store.ditherMode,
+    store.invertCharset,
     store.foregroundColor,
     store.backgroundColor,
     store.fontFamily,

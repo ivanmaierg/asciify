@@ -1,7 +1,7 @@
 import type { AsciiFrame } from '@/lib/ascii-engine'
 import { convertFrameInWorker, terminateWorker } from '@/lib/ascii-worker'
 import { CHARACTER_SETS } from '@/lib/constants'
-import type { CharacterSetName, ColorMode } from '@/lib/constants'
+import type { CharacterSetName, ColorMode, DitherMode } from '@/lib/constants'
 
 export interface FrameExtractionConfig {
   videoUrl: string
@@ -16,6 +16,10 @@ export interface FrameExtractionConfig {
   brightnessThreshold: number
   contrastBoost: number
   colorMode: ColorMode
+  gamma: number
+  edgeDetection: number
+  ditherMode: DitherMode
+  invertCharset: boolean
 }
 
 export interface ExtractedFrames {
@@ -77,6 +81,10 @@ export async function extractFrames(
       config.brightnessThreshold,
       config.contrastBoost,
       config.colorMode,
+      config.gamma,
+      config.edgeDetection,
+      config.ditherMode,
+      config.invertCharset,
     )
 
     frames.push(result)
