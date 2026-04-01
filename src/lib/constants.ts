@@ -14,6 +14,15 @@ export type PlaybackState = 'empty' | 'loading' | 'paused' | 'playing'
 
 export type ExportLoop = 'forever' | 'once' | number
 
+export type ExportFormat = 'html' | 'apng' | 'svg' | 'ansi'
+
+export const EXPORT_FORMAT_LABELS: Record<ExportFormat, string> = {
+  html: 'HTML',
+  apng: 'APNG',
+  svg: 'SVG',
+  ansi: 'ANSI',
+}
+
 export const FONT_PRESETS = [
   'Courier New',
   'Menlo',

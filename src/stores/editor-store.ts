@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import {
   type CharacterSetName,
   type ColorMode,
+  type ExportFormat,
   type ExportLoop,
   type PlaybackState,
   DEFAULT_SETTINGS,
@@ -34,6 +35,7 @@ interface EditorState {
   currentTime: number
 
   // Export settings
+  exportFormat: ExportFormat
   exportFps: number
   exportLoop: ExportLoop
   exportAutoplay: boolean
@@ -45,7 +47,8 @@ interface EditorState {
   // Export state
   isExporting: boolean
   exportProgress: number
-  exportedHtml: string | null
+  exportedOutput: string | null
+  exportedBlob: Blob | null
 
   // Actions
   setVideoFile: (file: File) => void
@@ -63,6 +66,7 @@ interface EditorState {
   setFrameSkip: (value: number) => void
   setPlaybackState: (state: PlaybackState) => void
   setCurrentTime: (time: number) => void
+  setExportFormat: (value: ExportFormat) => void
   setExportFps: (value: number) => void
   setExportLoop: (value: ExportLoop) => void
   setExportAutoplay: (value: boolean) => void
@@ -70,7 +74,8 @@ interface EditorState {
   setExportShowControls: (value: boolean) => void
   setIsExporting: (value: boolean) => void
   setExportProgress: (value: number) => void
-  setExportedHtml: (value: string | null) => void
+  setExportedOutput: (value: string | null) => void
+  setExportedBlob: (value: Blob | null) => void
 }
 
 export const useEditorStore = create<EditorState>((set, get) => ({
@@ -100,6 +105,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   currentTime: 0,
 
   // Export settings
+  exportFormat: 'html' as ExportFormat,
   exportFps: DEFAULT_SETTINGS.exportFps,
   exportLoop: DEFAULT_SETTINGS.exportLoop,
   exportAutoplay: DEFAULT_SETTINGS.exportAutoplay,
@@ -111,14 +117,15 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   // Export state
   isExporting: false,
   exportProgress: 0,
-  exportedHtml: null,
+  exportedOutput: null,
+  exportedBlob: null,
 
   // Actions
   setVideoFile: (file) => {
     const prev = get().videoUrl
     if (prev) URL.revokeObjectURL(prev)
     const videoUrl = URL.createObjectURL(file)
-    set({ videoFile: file, videoUrl, playbackState: 'loading', exportedHtml: null })
+    set({ videoFile: file, videoUrl, playbackState: 'loading', exportedOutput: null, exportedBlob: null })
   },
 
   clearVideo: () => {
@@ -132,7 +139,8 @@ export const useEditorStore = create<EditorState>((set, get) => ({
       videoHeight: 0,
       playbackState: 'empty',
       currentTime: 0,
-      exportedHtml: null,
+      exportedOutput: null,
+      exportedBlob: null,
     })
   },
 
@@ -149,6 +157,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   setFrameSkip: (value) => set({ frameSkip: value }),
   setPlaybackState: (state) => set({ playbackState: state }),
   setCurrentTime: (time) => set({ currentTime: time }),
+  setExportFormat: (value) => set({ exportFormat: value, exportedOutput: null, exportedBlob: null }),
   setExportFps: (value) => set({ exportFps: value }),
   setExportLoop: (value) => set({ exportLoop: value }),
   setExportAutoplay: (value) => set({ exportAutoplay: value }),
@@ -156,5 +165,6 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   setExportShowControls: (value) => set({ exportShowControls: value }),
   setIsExporting: (value) => set({ isExporting: value }),
   setExportProgress: (value) => set({ exportProgress: value }),
-  setExportedHtml: (value) => set({ exportedHtml: value }),
+  setExportedOutput: (value) => set({ exportedOutput: value }),
+  setExportedBlob: (value) => set({ exportedBlob: value }),
 }))

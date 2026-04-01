@@ -1,140 +1,155 @@
 'use client'
 
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { useEditorStore } from '@/stores/editor-store'
-import { convertFrameToAscii } from '@/lib/ascii-engine'
+import { extractFrames } from '@/lib/frame-extractor'
 import { rleEncode } from '@/lib/rle'
 import { generateExportHtml, downloadHtml } from '@/lib/html-export'
-import { CHARACTER_SETS } from '@/lib/constants'
-import type { CharacterSetName } from '@/lib/constants'
+import { generateExportAPNG } from '@/lib/export-apng'
+import { generateExportSVG } from '@/lib/export-svg'
+import { generateExportANSI } from '@/lib/export-ansi'
+import { EXPORT_FORMAT_LABELS } from '@/lib/constants'
 import { Button } from '@/components/ui/button'
-import { Download, Loader2 } from 'lucide-react'
+import { Download, Loader2, CircleAlert } from 'lucide-react'
 
-function getCharset(name: CharacterSetName, custom: string): string {
-  if (name === 'custom') return custom || CHARACTER_SETS.standard
-  return CHARACTER_SETS[name]
+function downloadFile(data: Blob | string, filename: string, mimeType: string) {
+  const blob = data instanceof Blob ? data : new Blob([data], { type: mimeType })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  a.click()
+  URL.revokeObjectURL(url)
 }
 
 export function ExportButton() {
   const store = useEditorStore()
+  const [error, setError] = useState<string | null>(null)
   const disabled = store.playbackState === 'empty' || store.isExporting
 
   const handleExport = useCallback(async () => {
     const s = useEditorStore.getState()
     if (!s.videoUrl || !s.videoDuration) return
 
+    setError(null)
     s.setIsExporting(true)
     s.setExportProgress(0)
-    s.setExportedHtml(null)
+    s.setExportedOutput(null)
+    s.setExportedBlob(null)
 
     try {
-      // Create a temporary video element for frame extraction
-      const video = document.createElement('video')
-      video.crossOrigin = 'anonymous'
-      video.muted = true
-      video.playsInline = true
-      video.src = s.videoUrl
+      // Phase 1: Extract frames (shared across all formats)
+      const extracted = await extractFrames(
+        {
+          videoUrl: s.videoUrl,
+          videoDuration: s.videoDuration,
+          frameRate: s.frameRate,
+          frameSkip: s.frameSkip,
+          columns: s.columns,
+          characterSet: s.characterSet,
+          customCharacters: s.customCharacters,
+          brightnessThreshold: s.brightnessThreshold,
+          contrastBoost: s.contrastBoost,
+          colorMode: s.colorMode,
+        },
+        (p) => s.setExportProgress(p * 0.9), // 0-90% for extraction
+      )
 
-      await new Promise<void>((resolve, reject) => {
-        video.onloadedmetadata = () => resolve()
-        video.onerror = () => reject(new Error('Failed to load video'))
-      })
-
-      const extractionCanvas = document.createElement('canvas')
-      extractionCanvas.width = video.videoWidth
-      extractionCanvas.height = video.videoHeight
-      const ectx = extractionCanvas.getContext('2d', { willReadFrequently: true })!
-
-      const charset = getCharset(s.characterSet, s.customCharacters)
-      const frameDuration = (1 / s.frameRate) * s.frameSkip
-      const totalFrames = Math.floor(s.videoDuration / frameDuration)
-      const frames: string[] = []
-
-      for (let i = 0; i < totalFrames; i++) {
-        // Seek to frame time
-        const time = i * frameDuration
-        video.currentTime = time
-        await new Promise<void>((resolve) => {
-          video.onseeked = () => resolve()
-        })
-
-        // Extract frame
-        ectx.drawImage(video, 0, 0, extractionCanvas.width, extractionCanvas.height)
-        const imageData = ectx.getImageData(0, 0, extractionCanvas.width, extractionCanvas.height)
-
-        // Convert to ASCII
-        const result = convertFrameToAscii(
-          imageData,
-          s.columns,
-          charset,
-          s.brightnessThreshold,
-          s.contrastBoost,
-          s.colorMode,
-        )
-
-        // RLE encode and store
-        frames.push(rleEncode(result.text))
-
-        // Update progress
-        s.setExportProgress((i + 1) / totalFrames)
-
-        // Yield to main thread every 5 frames
-        if (i % 5 === 0) await new Promise((r) => setTimeout(r, 0))
-      }
-
-      // Calculate export canvas dimensions
-      const measureCanvas = document.createElement('canvas')
-      const mctx = measureCanvas.getContext('2d')!
-      const font = `${s.fontSize}px ${s.fontFamily}, monospace`
-      mctx.font = font
-      const charWidth = mctx.measureText('M').width
-
-      const exportCanvasWidth = s.exportCanvasWidth
-      const exportColumns = Math.floor(exportCanvasWidth / charWidth)
+      // Phase 2: Generate format-specific output
+      const format = s.exportFormat
       const lineHeight = Math.ceil(s.fontSize * 1.2)
 
-      // Re-calculate rows from first frame
-      const sampleResult = convertFrameToAscii(
-        ectx.getImageData(0, 0, extractionCanvas.width, extractionCanvas.height),
-        s.columns,
-        charset,
-        s.brightnessThreshold,
-        s.contrastBoost,
-        s.colorMode,
-      )
-      const rows = sampleResult.cells.length
-      const exportCanvasHeight = rows * lineHeight
+      switch (format) {
+        case 'html': {
+          const rleFrames = extracted.frames.map((f) => rleEncode(f.text))
+          const canvasHeight = extracted.rows * lineHeight
 
-      // Generate HTML
-      const html = generateExportHtml({
-        frames,
-        fps: s.exportFps,
-        loop: s.exportLoop,
-        autoplay: s.exportAutoplay,
-        canvasWidth: exportCanvasWidth,
-        canvasHeight: exportCanvasHeight,
-        fgColor: s.foregroundColor,
-        bgColor: s.backgroundColor,
-        fontFamily: s.fontFamily,
-        fontSize: s.fontSize,
-        lineHeight,
-        showControls: s.exportShowControls,
-        colorMode: s.colorMode,
-      })
+          const html = generateExportHtml({
+            frames: rleFrames,
+            fps: s.exportFps,
+            loop: s.exportLoop,
+            autoplay: s.exportAutoplay,
+            canvasWidth: s.exportCanvasWidth,
+            canvasHeight,
+            fgColor: s.foregroundColor,
+            bgColor: s.backgroundColor,
+            fontFamily: s.fontFamily,
+            fontSize: s.fontSize,
+            lineHeight,
+            showControls: s.exportShowControls,
+            colorMode: s.colorMode,
+          })
 
-      // Download
-      downloadHtml(html)
-      s.setExportedHtml(html)
+          downloadHtml(html)
+          s.setExportedOutput(html)
+          break
+        }
 
-      // Clean up
-      video.removeAttribute('src')
-      video.load()
+        case 'apng': {
+          const blob = await generateExportAPNG(
+            {
+              frames: extracted.frames,
+              rows: extracted.rows,
+              fps: s.exportFps,
+              loop: s.exportLoop,
+              canvasWidth: s.exportCanvasWidth,
+              fontFamily: s.fontFamily,
+              fontSize: s.fontSize,
+              fgColor: s.foregroundColor,
+              bgColor: s.backgroundColor,
+              colorMode: s.colorMode,
+            },
+            (p) => s.setExportProgress(0.9 + p * 0.1),
+          )
+
+          downloadFile(blob, 'ascii-animation.apng', 'image/apng')
+          s.setExportedBlob(blob)
+          break
+        }
+
+        case 'svg': {
+          const svg = generateExportSVG({
+            frames: extracted.frames,
+            fps: s.exportFps,
+            loop: s.exportLoop,
+            fontFamily: s.fontFamily,
+            fontSize: s.fontSize,
+            fgColor: s.foregroundColor,
+            bgColor: s.backgroundColor,
+            colorMode: s.colorMode,
+            canvasWidth: s.exportCanvasWidth,
+          })
+
+          downloadFile(svg, 'ascii-animation.svg', 'image/svg+xml')
+          s.setExportedOutput(svg)
+          break
+        }
+
+        case 'ansi': {
+          const script = generateExportANSI({
+            frames: extracted.frames,
+            fps: s.exportFps,
+            loop: s.exportLoop,
+            colorMode: s.colorMode,
+            fgColor: s.foregroundColor,
+          })
+
+          downloadFile(script, 'ascii-animation.sh', 'text/x-shellscript')
+          s.setExportedOutput(script)
+          break
+        }
+      }
+
+      s.setExportProgress(1)
     } catch (err) {
-      console.error('Export failed:', err)
+      const message = err instanceof Error ? err.message : 'Export failed. Please try again.'
+      setError(message)
     } finally {
       s.setIsExporting(false)
     }
   }, [])
+
+  const formatLabel = EXPORT_FORMAT_LABELS[store.exportFormat]
 
   return (
     <div className="space-y-2">
@@ -144,6 +159,12 @@ export function ExportButton() {
             className="bg-primary h-full transition-all duration-200"
             style={{ width: `${store.exportProgress * 100}%` }}
           />
+        </div>
+      )}
+      {error && (
+        <div className="flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2">
+          <CircleAlert className="h-4 w-4 text-destructive shrink-0 mt-0.5" />
+          <p className="text-xs text-destructive">{error}</p>
         </div>
       )}
       <Button
@@ -159,7 +180,7 @@ export function ExportButton() {
         ) : (
           <>
             <Download className="h-4 w-4 mr-2" />
-            Export HTML
+            Export {formatLabel}
           </>
         )}
       </Button>
