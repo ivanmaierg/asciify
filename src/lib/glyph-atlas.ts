@@ -1,3 +1,5 @@
+import { measureMonospaceChar } from '@/lib/measure-char'
+
 export interface GlyphAtlas {
   canvas: HTMLCanvasElement
   charWidth: number
@@ -12,13 +14,10 @@ export function createGlyphAtlas(
   fontFamily: string,
   fontSize: number,
 ): GlyphAtlas {
-  // Measure character dimensions
-  const measureCanvas = document.createElement('canvas')
-  const mctx = measureCanvas.getContext('2d')!
   const font = `${fontSize}px ${fontFamily}, monospace`
-  mctx.font = font
-  const charWidth = Math.ceil(mctx.measureText('M').width)
-  const charHeight = Math.ceil(fontSize * 1.2)
+  const measured = measureMonospaceChar(font, fontSize)
+  const charWidth = Math.ceil(measured.charWidth)
+  const charHeight = measured.charHeight
 
   // Build character-to-index map
   const charToIndex = new Map<string, number>()

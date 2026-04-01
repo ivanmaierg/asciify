@@ -1,5 +1,6 @@
 import type { AsciiFrame, AsciiCell } from '@/lib/ascii-engine'
 import type { ColorMode, ExportLoop } from '@/lib/constants'
+import { measureMonospaceChar } from '@/lib/measure-char'
 
 export interface SVGExportOptions {
   frames: AsciiFrame[]
@@ -63,8 +64,8 @@ export function generateExportSVG(options: SVGExportOptions): string {
 
   const rows = frames[0].cells.length
   const cols = frames[0].cells[0]?.length ?? 80
-  const charWidth = fontSize * 0.6 // monospace approximation
-  const lineHeight = fontSize * 1.2
+  const font = `${fontSize}px ${fontFamily}, monospace`
+  const { charWidth, charHeight: lineHeight } = measureMonospaceChar(font, fontSize)
   const svgWidth = charWidth * cols
   const svgHeight = lineHeight * rows
   const totalDuration = frames.length / fps

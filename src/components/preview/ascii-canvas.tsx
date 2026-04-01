@@ -4,6 +4,7 @@ import { useRef, useEffect, useCallback, useState } from 'react'
 import { useEditorStore } from '@/stores/editor-store'
 import { convertFrameToAscii } from '@/lib/ascii-engine'
 import { renderAsciiToCanvas } from '@/lib/pretext-renderer'
+import { measureMonospaceChar } from '@/lib/measure-char'
 import { WebGPURenderer } from '@/lib/webgpu-renderer'
 import { connectAudioPreview, disconnectAudioPreview, destroyAudioPreview } from '@/lib/audio-preview'
 import { CHARACTER_SETS } from '@/lib/constants'
@@ -202,16 +203,14 @@ export function AsciiCanvas() {
       gpuRef.current.updateFrame(result.cells)
       gpuRef.current.render()
     } else {
-      const lineHeight = Math.ceil(s.fontSize * 1.2)
+      const font = `${s.fontSize}px ${s.fontFamily}, monospace`
+      const { charWidth, charHeight: lineHeight } = measureMonospaceChar(font, s.fontSize)
       const rows = result.cells.length
       const canvasHeight = rows * lineHeight
-      const font = `${s.fontSize}px ${s.fontFamily}, monospace`
+      const canvasWidth = Math.ceil(charWidth * s.columns)
 
       const dctx = displayCanvas.getContext('2d')
       if (!dctx) return
-      dctx.font = font
-      const charWidth = dctx.measureText('M').width
-      const canvasWidth = Math.ceil(charWidth * s.columns)
 
       if (displayCanvas.width !== canvasWidth || displayCanvas.height !== canvasHeight) {
         displayCanvas.width = canvasWidth
@@ -223,6 +222,7 @@ export function AsciiCanvas() {
         result.text,
         result.cells,
         font,
+        s.fontSize,
         lineHeight,
         canvasWidth,
         canvasHeight,

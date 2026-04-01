@@ -1,6 +1,7 @@
 import type { AsciiFrame } from '@/lib/ascii-engine'
 import type { ColorMode, ExportLoop } from '@/lib/constants'
 import { renderAsciiToCanvas } from '@/lib/pretext-renderer'
+import { measureMonospaceChar } from '@/lib/measure-char'
 import { encodeAPNG } from '@/lib/png-encoder'
 
 export interface APNGExportOptions {
@@ -23,20 +24,15 @@ export async function generateExportAPNG(
   const { frames, rows, fps, loop, canvasWidth, fontFamily, fontSize, fgColor, bgColor, colorMode } = options
 
   const font = `${fontSize}px ${fontFamily}, monospace`
-  const lineHeight = Math.ceil(fontSize * 1.2)
+  const { charWidth, charHeight: lineHeight } = measureMonospaceChar(font, fontSize)
   const canvasHeight = rows * lineHeight
 
   // Create offscreen canvas for rendering
   const canvas = document.createElement('canvas')
-  canvas.width = canvasWidth
-  canvas.height = canvasHeight
-  const ctx = canvas.getContext('2d')!
-
-  // Measure char width to size canvas correctly
-  ctx.font = font
-  const charWidth = ctx.measureText('M').width
   const actualWidth = Math.ceil(charWidth * (frames[0]?.cells[0]?.length ?? 80))
   canvas.width = actualWidth
+  canvas.height = canvasHeight
+  const ctx = canvas.getContext('2d')!
 
   const imageDataFrames: ImageData[] = []
 
@@ -48,6 +44,7 @@ export async function generateExportAPNG(
       frame.text,
       frame.cells,
       font,
+      fontSize,
       lineHeight,
       canvas.width,
       canvas.height,
