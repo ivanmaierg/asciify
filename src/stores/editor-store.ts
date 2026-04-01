@@ -39,6 +39,8 @@ interface EditorState {
   audioEnabled: boolean
   audioBitDepth: BitDepth
   audioSampleRate: AudioSampleRate
+  audioLowPass: number     // cutoff frequency Hz, 0 = off
+  audioDistortion: number  // 0-100
 
   // CRT effects
   crtEnabled: boolean
@@ -86,6 +88,8 @@ interface EditorState {
   setAudioEnabled: (value: boolean) => void
   setAudioBitDepth: (value: BitDepth) => void
   setAudioSampleRate: (value: AudioSampleRate) => void
+  setAudioLowPass: (value: number) => void
+  setAudioDistortion: (value: number) => void
   setCrtEnabled: (value: boolean) => void
   setCrtVignette: (value: number) => void
   setCrtRoundedCorners: (value: number) => void
@@ -135,6 +139,8 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   audioEnabled: true,
   audioBitDepth: 16 as BitDepth,
   audioSampleRate: 22050 as AudioSampleRate,
+  audioLowPass: 4000,
+  audioDistortion: 30,
 
   // CRT effects
   crtEnabled: false,
@@ -203,6 +209,8 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   setAudioEnabled: (value) => set({ audioEnabled: value }),
   setAudioBitDepth: (value) => set({ audioBitDepth: value }),
   setAudioSampleRate: (value) => set({ audioSampleRate: value }),
+  setAudioLowPass: (value) => set({ audioLowPass: value }),
+  setAudioDistortion: (value) => set({ audioDistortion: value }),
   setCrtEnabled: (value) => set({ crtEnabled: value }),
   setCrtVignette: (value) => set({ crtVignette: value }),
   setCrtRoundedCorners: (value) => set({ crtRoundedCorners: value }),

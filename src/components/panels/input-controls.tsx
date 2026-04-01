@@ -260,6 +260,28 @@ export function InputControls() {
                   </SelectContent>
                 </Select>
               </div>
+
+              <div className="space-y-2">
+                <Label className="text-xs text-muted-foreground">
+                  Low-Pass <span className="text-foreground ml-1">{store.audioLowPass === 0 ? 'Off' : `${(store.audioLowPass / 1000).toFixed(1)} kHz`}</span>
+                </Label>
+                <Slider
+                  min={0} max={20000} step={100}
+                  value={[store.audioLowPass]}
+                  onValueChange={(v) => store.setAudioLowPass(sliderVal(v))}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-xs text-muted-foreground">
+                  Distortion <span className="text-foreground ml-1">{store.audioDistortion}%</span>
+                </Label>
+                <Slider
+                  min={0} max={95} step={1}
+                  value={[store.audioDistortion]}
+                  onValueChange={(v) => store.setAudioDistortion(sliderVal(v))}
+                />
+              </div>
             </>
           )}
         </>

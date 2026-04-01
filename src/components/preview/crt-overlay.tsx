@@ -17,9 +17,8 @@ export function CrtOverlay() {
 
   return (
     <div
-      className="absolute inset-0 pointer-events-none overflow-hidden"
+      className="absolute inset-0 pointer-events-none"
       style={{
-        borderRadius: `${roundedCorners}px`,
         perspective: curvature > 0 ? `${curvePerspective}px` : undefined,
       }}
     >

@@ -3,7 +3,12 @@ import type { BitDepth, AudioSampleRate } from '@/lib/audio-processor'
 let audioCtx: AudioContext | null = null
 let sourceNode: MediaElementAudioSourceNode | null = null
 let crusherNode: AudioWorkletNode | ScriptProcessorNode | null = null
+let lowPassNode: BiquadFilterNode | null = null
+let waveshaperNode: WaveShaperNode | null = null
+let gainNode: GainNode | null = null
+let muteGainNode: GainNode | null = null
 let connectedVideo: HTMLVideoElement | null = null
+let workletLoaded = false
 
 const CRUSHER_PROCESSOR = `
 class BitCrusherProcessor extends AudioWorkletProcessor {
@@ -39,7 +44,20 @@ class BitCrusherProcessor extends AudioWorkletProcessor {
 registerProcessor('bitcrusher', BitCrusherProcessor);
 `
 
-let workletLoaded = false
+function makeDistortionCurve(amount: number): Float32Array {
+  const samples = 44100
+  const curve = new Float32Array(samples)
+  for (let i = 0; i < samples; i++) {
+    const x = (i * 2) / samples - 1
+    if (amount === 0) {
+      curve[i] = x
+    } else {
+      const k = (amount * 2) / (1 - amount)
+      curve[i] = ((1 + k) * x) / (1 + k * Math.abs(x))
+    }
+  }
+  return curve
+}
 
 async function ensureAudioContext(): Promise<AudioContext> {
   if (!audioCtx) {
@@ -55,94 +73,176 @@ async function ensureAudioContext(): Promise<AudioContext> {
       await audioCtx.audioWorklet.addModule(url)
       workletLoaded = true
     } catch {
-      // AudioWorklet may not be supported from blob URLs in some browsers
-      // Fall back to ScriptProcessorNode below
+      // Fall back to ScriptProcessorNode
     }
     URL.revokeObjectURL(url)
   }
   return audioCtx
 }
 
+export interface AudioPreviewParams {
+  bitDepth: BitDepth
+  sampleRate: AudioSampleRate
+  lowPass: number     // Hz cutoff, 0 = off
+  distortion: number  // 0-100
+}
+
 export async function connectAudioPreview(
   video: HTMLVideoElement,
-  bitDepth: BitDepth,
-  sampleRate: AudioSampleRate,
+  params: AudioPreviewParams,
 ): Promise<void> {
   const ctx = await ensureAudioContext()
 
-  // Only create source node once per video element
+  // If same video, just update params
+  if (connectedVideo === video && sourceNode) {
+    updateParams(ctx, params)
+    return
+  }
+
+  // New video — set up chain
   if (connectedVideo !== video) {
-    disconnectAudioPreview()
-    sourceNode = ctx.createMediaElementSource(video)
+    teardownChain()
     connectedVideo = video
-    // Mute the video's direct output since we're routing through Web Audio
+  }
+
+  if (!sourceNode) {
     video.muted = false
+    sourceNode = ctx.createMediaElementSource(video)
   }
 
-  // Remove old crusher
-  if (crusherNode) {
-    sourceNode!.disconnect()
-    crusherNode.disconnect()
-    crusherNode = null
-  }
+  // Build chain: source → crusher → lowpass → waveshaper → gain → destination
+  buildChain(ctx, params)
+}
 
-  const rateFactor = sampleRate / 44100
+function buildChain(ctx: AudioContext, params: AudioPreviewParams): void {
+  if (!sourceNode) return
 
+  // Crusher
+  const rateFactor = params.sampleRate / 44100
   if (workletLoaded) {
-    // Use AudioWorklet (preferred — runs on audio thread)
     const workletNode = new AudioWorkletNode(ctx, 'bitcrusher')
-    workletNode.parameters.get('bitDepth')!.value = bitDepth
+    workletNode.parameters.get('bitDepth')!.value = params.bitDepth
     workletNode.parameters.get('rateFactor')!.value = rateFactor
     crusherNode = workletNode
   } else {
-    // Fallback: ScriptProcessorNode (deprecated but universal)
-    const processor = ctx.createScriptProcessor(4096, 2, 2)
-    const levels = Math.pow(2, bitDepth - 1)
-    const step = Math.max(1, Math.round(1 / rateFactor))
-    let held = 0
-    let counter = 0
-    processor.onaudioprocess = (e) => {
-      for (let ch = 0; ch < e.outputBuffer.numberOfChannels; ch++) {
-        const input = e.inputBuffer.getChannelData(ch)
-        const output = e.outputBuffer.getChannelData(ch)
-        for (let i = 0; i < input.length; i++) {
-          if (counter % step === 0) {
-            held = Math.round(input[i] * levels) / levels
-          }
-          output[i] = held
-          counter++
-        }
-      }
-    }
-    crusherNode = processor
+    crusherNode = createScriptCrusher(ctx, params.bitDepth, rateFactor)
   }
 
-  sourceNode!.connect(crusherNode)
-  crusherNode.connect(ctx.destination)
+  // Low-pass filter
+  lowPassNode = ctx.createBiquadFilter()
+  lowPassNode.type = 'lowpass'
+  lowPassNode.frequency.value = params.lowPass > 0 ? params.lowPass : 22050
+  lowPassNode.Q.value = 1
+
+  // Waveshaper (distortion)
+  waveshaperNode = ctx.createWaveShaper()
+  waveshaperNode.curve = makeDistortionCurve(params.distortion / 100) as Float32Array<ArrayBuffer>
+  waveshaperNode.oversample = '4x'
+
+  // Gain (compensate for volume loss)
+  gainNode = ctx.createGain()
+  gainNode.gain.value = 1.0 + params.distortion * 0.005
+
+  // Connect chain
+  sourceNode.connect(crusherNode)
+  crusherNode.connect(lowPassNode)
+  lowPassNode.connect(waveshaperNode)
+  waveshaperNode.connect(gainNode)
+  gainNode.connect(ctx.destination)
+}
+
+function updateParams(ctx: AudioContext, params: AudioPreviewParams): void {
+  const rateFactor = params.sampleRate / 44100
+
+  // Update crusher
+  if (crusherNode && 'parameters' in crusherNode) {
+    const worklet = crusherNode as AudioWorkletNode
+    worklet.parameters.get('bitDepth')!.value = params.bitDepth
+    worklet.parameters.get('rateFactor')!.value = rateFactor
+  } else if (crusherNode && sourceNode) {
+    // ScriptProcessor — must rebuild the chain
+    teardownChain()
+    buildChain(ctx, params)
+    return
+  }
+
+  // Update low-pass
+  if (lowPassNode) {
+    lowPassNode.frequency.value = params.lowPass > 0 ? params.lowPass : 22050
+  }
+
+  // Update distortion
+  if (waveshaperNode) {
+    waveshaperNode.curve = makeDistortionCurve(params.distortion / 100) as Float32Array<ArrayBuffer>
+  }
+
+  // Update gain
+  if (gainNode) {
+    gainNode.gain.value = 1.0 + params.distortion * 0.005
+  }
+}
+
+function createScriptCrusher(
+  ctx: AudioContext,
+  bitDepth: BitDepth,
+  rateFactor: number,
+): ScriptProcessorNode {
+  const processor = ctx.createScriptProcessor(4096, 2, 2)
+  const levels = Math.pow(2, bitDepth - 1)
+  const step = Math.max(1, Math.round(1 / rateFactor))
+  let held = 0
+  let counter = 0
+  processor.onaudioprocess = (e) => {
+    for (let ch = 0; ch < e.outputBuffer.numberOfChannels; ch++) {
+      const input = e.inputBuffer.getChannelData(ch)
+      const output = e.outputBuffer.getChannelData(ch)
+      for (let i = 0; i < input.length; i++) {
+        if (counter % step === 0) {
+          held = Math.round(input[i] * levels) / levels
+        }
+        output[i] = held
+        counter++
+      }
+    }
+  }
+  return processor
+}
+
+function teardownChain(): void {
+  try { sourceNode?.disconnect() } catch { /* ok */ }
+  try { crusherNode?.disconnect() } catch { /* ok */ }
+  try { lowPassNode?.disconnect() } catch { /* ok */ }
+  try { waveshaperNode?.disconnect() } catch { /* ok */ }
+  try { gainNode?.disconnect() } catch { /* ok */ }
+  try { muteGainNode?.disconnect() } catch { /* ok */ }
+  crusherNode = null
+  lowPassNode = null
+  waveshaperNode = null
+  gainNode = null
+  muteGainNode = null
 }
 
 export function disconnectAudioPreview(): void {
-  if (sourceNode) {
-    sourceNode.disconnect()
+  teardownChain()
+  // Route source to silent gain (audio is captured by createMediaElementSource)
+  if (sourceNode && audioCtx) {
+    muteGainNode = audioCtx.createGain()
+    muteGainNode.gain.value = 0
+    sourceNode.connect(muteGainNode)
+    muteGainNode.connect(audioCtx.destination)
   }
-  if (crusherNode) {
-    crusherNode.disconnect()
-    crusherNode = null
-  }
-  if (connectedVideo) {
-    connectedVideo = null
-  }
-  sourceNode = null
 }
 
-export function bypassAudioPreview(): void {
-  // Connect source directly to destination (no processing)
-  if (sourceNode && audioCtx) {
-    if (crusherNode) {
-      sourceNode.disconnect()
-      crusherNode.disconnect()
-      crusherNode = null
-    }
-    sourceNode.connect(audioCtx.destination)
+export function destroyAudioPreview(): void {
+  teardownChain()
+  if (sourceNode) {
+    try { sourceNode.disconnect() } catch { /* ok */ }
+    sourceNode = null
+  }
+  connectedVideo = null
+  if (audioCtx) {
+    audioCtx.close().catch(() => {})
+    audioCtx = null
+    workletLoaded = false
   }
 }

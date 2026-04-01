@@ -8,6 +8,8 @@ import { CrtOverlay } from '@/components/preview/crt-overlay'
 
 export function PreviewPanel() {
   const playbackState = useEditorStore((s) => s.playbackState)
+  const crtEnabled = useEditorStore((s) => s.crtEnabled)
+  const crtRoundedCorners = useEditorStore((s) => s.crtRoundedCorners)
 
   if (playbackState === 'empty') {
     return (
@@ -20,7 +22,13 @@ export function PreviewPanel() {
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
       <div className="flex-1 min-h-0 overflow-auto flex items-center justify-center bg-black">
-        <div className="relative inline-block">
+        <div
+          className="relative inline-block"
+          style={{
+            borderRadius: crtEnabled ? `${crtRoundedCorners}px` : undefined,
+            overflow: crtEnabled ? 'hidden' : undefined,
+          }}
+        >
           <AsciiCanvas />
           <CrtOverlay />
         </div>

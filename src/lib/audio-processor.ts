@@ -2,25 +2,33 @@ export type BitDepth = 8 | 16 | 32
 export type AudioSampleRate = 11025 | 22050 | 44100
 
 export interface AudioProcessorConfig {
+  videoFile?: File
   videoUrl: string
   trimStart: number
   trimEnd: number
   bitDepth: BitDepth
   sampleRate: AudioSampleRate
+  lowPass: number     // Hz cutoff, 0 = off
+  distortion: number  // 0-100
 }
 
 export async function processAudio(config: AudioProcessorConfig): Promise<Blob> {
-  const { videoUrl, trimStart, trimEnd, bitDepth, sampleRate } = config
+  const { videoFile, videoUrl, trimStart, trimEnd, bitDepth, sampleRate, lowPass, distortion } = config
 
-  // Fetch video as ArrayBuffer
-  const response = await fetch(videoUrl)
-  const arrayBuffer = await response.arrayBuffer()
+  // Read video as ArrayBuffer — prefer File if available (more reliable)
+  let arrayBuffer: ArrayBuffer
+  if (videoFile) {
+    arrayBuffer = await videoFile.arrayBuffer()
+  } else {
+    const response = await fetch(videoUrl)
+    arrayBuffer = await response.arrayBuffer()
+  }
 
-  // Decode audio
+  // Decode audio from the video container
   const audioCtx = new AudioContext({ sampleRate: 44100 })
   let audioBuffer: AudioBuffer
   try {
-    audioBuffer = await audioCtx.decodeAudioData(arrayBuffer)
+    audioBuffer = await audioCtx.decodeAudioData(arrayBuffer.slice(0))
   } finally {
     await audioCtx.close()
   }
@@ -42,10 +50,20 @@ export async function processAudio(config: AudioProcessorConfig): Promise<Blob> 
   const resampledData = resample(channelData, audioBuffer.sampleRate, sampleRate)
 
   // Apply bitcrusher
-  const crushedData = bitcrush(resampledData, bitDepth)
+  let processed = bitcrush(resampledData, bitDepth)
+
+  // Apply simple low-pass filter (single-pole IIR)
+  if (lowPass > 0 && lowPass < sampleRate / 2) {
+    processed = applyLowPass(processed, sampleRate, lowPass)
+  }
+
+  // Apply distortion (waveshaper)
+  if (distortion > 0) {
+    processed = applyDistortion(processed, distortion / 100)
+  }
 
   // Encode as WAV
-  return encodeWAV(crushedData, sampleRate, channels, bitDepth)
+  return encodeWAV(processed, sampleRate, channels, bitDepth)
 }
 
 function resample(
@@ -66,6 +84,40 @@ function resample(
       resampled[i] = data[Math.min(srcIndex, data.length - 1)]
     }
     return resampled
+  })
+}
+
+function applyLowPass(
+  channelData: Float32Array[],
+  sampleRate: number,
+  cutoff: number,
+): Float32Array[] {
+  // Single-pole IIR low-pass filter
+  const rc = 1.0 / (2.0 * Math.PI * cutoff)
+  const dt = 1.0 / sampleRate
+  const alpha = dt / (rc + dt)
+
+  return channelData.map((data) => {
+    const filtered = new Float32Array(data.length)
+    filtered[0] = data[0]
+    for (let i = 1; i < data.length; i++) {
+      filtered[i] = filtered[i - 1] + alpha * (data[i] - filtered[i - 1])
+    }
+    return filtered
+  })
+}
+
+function applyDistortion(channelData: Float32Array[], amount: number): Float32Array[] {
+  if (amount === 0) return channelData
+
+  const k = (amount * 2) / (1 - amount + 0.001)
+
+  return channelData.map((data) => {
+    const distorted = new Float32Array(data.length)
+    for (let i = 0; i < data.length; i++) {
+      distorted[i] = ((1 + k) * data[i]) / (1 + k * Math.abs(data[i]))
+    }
+    return distorted
   })
 }
 

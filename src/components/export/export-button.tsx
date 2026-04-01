@@ -66,14 +66,18 @@ export function ExportButton() {
       if (s.audioEnabled && supportsAudio && s.videoUrl) {
         try {
           const audioBlob = await processAudio({
+            videoFile: s.videoFile ?? undefined,
             videoUrl: s.videoUrl,
             trimStart: s.trimStart,
             trimEnd: s.trimEnd,
             bitDepth: s.audioBitDepth,
             sampleRate: s.audioSampleRate,
+            lowPass: s.audioLowPass,
+            distortion: s.audioDistortion,
           })
           audioDataUrl = await blobToBase64DataUrl(audioBlob)
-        } catch {
+        } catch (audioErr) {
+          console.warn('Audio processing failed:', audioErr)
           // Video may not have audio — continue without it
         }
       }

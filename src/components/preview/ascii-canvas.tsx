@@ -5,7 +5,7 @@ import { useEditorStore } from '@/stores/editor-store'
 import { convertFrameToAscii } from '@/lib/ascii-engine'
 import { renderAsciiToCanvas } from '@/lib/pretext-renderer'
 import { WebGPURenderer } from '@/lib/webgpu-renderer'
-import { connectAudioPreview, disconnectAudioPreview } from '@/lib/audio-preview'
+import { connectAudioPreview, disconnectAudioPreview, destroyAudioPreview } from '@/lib/audio-preview'
 import { CHARACTER_SETS } from '@/lib/constants'
 import type { CharacterSetName } from '@/lib/constants'
 
@@ -82,25 +82,29 @@ export function AsciiCanvas() {
     ec.height = Math.round(store.videoHeight * scale)
   }, [store.videoWidth, store.videoHeight])
 
-  // Sync audio: connect/disconnect bitcrusher preview
+  // Sync audio: connect/disconnect with filters
   useEffect(() => {
     const video = videoRef.current
     if (!video) return
 
     if (store.audioEnabled) {
-      connectAudioPreview(video, store.audioBitDepth, store.audioSampleRate).catch(() => {
-        // Fallback: just unmute
+      connectAudioPreview(video, {
+        bitDepth: store.audioBitDepth,
+        sampleRate: store.audioSampleRate,
+        lowPass: store.audioLowPass,
+        distortion: store.audioDistortion,
+      }).catch(() => {
         video.muted = false
       })
     } else {
       disconnectAudioPreview()
-      video.muted = true
     }
+  }, [store.audioEnabled, store.audioBitDepth, store.audioSampleRate, store.audioLowPass, store.audioDistortion])
 
-    return () => {
-      disconnectAudioPreview()
-    }
-  }, [store.audioEnabled, store.audioBitDepth, store.audioSampleRate])
+  // Clean up audio on unmount only
+  useEffect(() => {
+    return () => { destroyAudioPreview() }
+  }, [])
 
   // Init/recreate WebGPU renderer when charset/font changes
   useEffect(() => {
