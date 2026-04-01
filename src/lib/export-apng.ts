@@ -51,7 +51,7 @@ export async function generateExportAPNG(
       lineHeight,
       canvas.width,
       canvas.height,
-      colorMode === 'colored' ? undefined : fgColor,
+      colorMode === 'colored' || colorMode === 'monoscale' ? undefined : fgColor,
       bgColor,
       colorMode,
     )

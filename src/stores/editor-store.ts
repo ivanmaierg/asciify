@@ -7,6 +7,7 @@ import {
   type PlaybackState,
   DEFAULT_SETTINGS,
 } from '@/lib/constants'
+import type { BitDepth, AudioSampleRate } from '@/lib/audio-processor'
 
 interface EditorState {
   // Video source
@@ -33,6 +34,18 @@ interface EditorState {
   // Trim
   trimStart: number
   trimEnd: number
+
+  // Audio
+  audioEnabled: boolean
+  audioBitDepth: BitDepth
+  audioSampleRate: AudioSampleRate
+
+  // CRT effects
+  crtEnabled: boolean
+  crtVignette: number
+  crtRoundedCorners: number
+  crtScanlines: number
+  crtCurvature: number
 
   // Playback
   playbackState: PlaybackState
@@ -70,6 +83,14 @@ interface EditorState {
   setFrameSkip: (value: number) => void
   setTrimStart: (value: number) => void
   setTrimEnd: (value: number) => void
+  setAudioEnabled: (value: boolean) => void
+  setAudioBitDepth: (value: BitDepth) => void
+  setAudioSampleRate: (value: AudioSampleRate) => void
+  setCrtEnabled: (value: boolean) => void
+  setCrtVignette: (value: number) => void
+  setCrtRoundedCorners: (value: number) => void
+  setCrtScanlines: (value: number) => void
+  setCrtCurvature: (value: number) => void
   setPlaybackState: (state: PlaybackState) => void
   setCurrentTime: (time: number) => void
   setExportFormat: (value: ExportFormat) => void
@@ -109,6 +130,18 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   // Trim
   trimStart: 0,
   trimEnd: 0,
+
+  // Audio
+  audioEnabled: true,
+  audioBitDepth: 16 as BitDepth,
+  audioSampleRate: 22050 as AudioSampleRate,
+
+  // CRT effects
+  crtEnabled: false,
+  crtVignette: 50,
+  crtRoundedCorners: 20,
+  crtScanlines: 30,
+  crtCurvature: 30,
 
   // Playback
   playbackState: 'empty',
@@ -167,6 +200,14 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   setFrameSkip: (value) => set({ frameSkip: value }),
   setTrimStart: (value) => set((s) => ({ trimStart: Math.min(value, s.trimEnd - 0.5) })),
   setTrimEnd: (value) => set((s) => ({ trimEnd: Math.max(value, s.trimStart + 0.5) })),
+  setAudioEnabled: (value) => set({ audioEnabled: value }),
+  setAudioBitDepth: (value) => set({ audioBitDepth: value }),
+  setAudioSampleRate: (value) => set({ audioSampleRate: value }),
+  setCrtEnabled: (value) => set({ crtEnabled: value }),
+  setCrtVignette: (value) => set({ crtVignette: value }),
+  setCrtRoundedCorners: (value) => set({ crtRoundedCorners: value }),
+  setCrtScanlines: (value) => set({ crtScanlines: value }),
+  setCrtCurvature: (value) => set({ crtCurvature: value }),
   setPlaybackState: (state) => set({ playbackState: state }),
   setCurrentTime: (time) => set({ currentTime: time }),
   setExportFormat: (value) => set({ exportFormat: value, exportedOutput: null, exportedBlob: null }),

@@ -71,6 +71,9 @@ fn main(@builtin(position) fragCoord: vec4<f32>) -> @location(0) vec4<f32> {
   var color = vec3<f32>(params.fgR, params.fgG, params.fgB);
   if (params.colorMode == 1u) {
     color = vec3<f32>(r, g, b);
+  } else if (params.colorMode == 3u) {
+    let lum = 0.299 * r + 0.587 * g + 0.114 * b;
+    color = vec3<f32>(lum, lum, lum);
   }
 
   let bg = vec3<f32>(params.bgR, params.bgG, params.bgB);
@@ -87,7 +90,7 @@ export interface WebGPURendererConfig {
   fontSize: number
   bgColor: [number, number, number]
   fgColor: [number, number, number]
-  colorMode: number // 0=mono, 1=colored, 2=inverted
+  colorMode: number // 0=mono, 1=colored, 2=inverted, 3=monoscale
 }
 
 export class WebGPURenderer {

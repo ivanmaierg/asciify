@@ -8,7 +8,7 @@ export const CHARACTER_SETS = {
 
 export type CharacterSetName = keyof typeof CHARACTER_SETS | 'custom'
 
-export type ColorMode = 'monochrome' | 'colored' | 'inverted'
+export type ColorMode = 'monochrome' | 'colored' | 'inverted' | 'monoscale'
 
 export type PlaybackState = 'empty' | 'loading' | 'paused' | 'playing'
 

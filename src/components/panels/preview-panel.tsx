@@ -4,6 +4,7 @@ import { useEditorStore } from '@/stores/editor-store'
 import { VideoDropZone } from '@/components/preview/video-drop-zone'
 import { AsciiCanvas } from '@/components/preview/ascii-canvas'
 import { PlaybackBar } from '@/components/preview/playback-bar'
+import { CrtOverlay } from '@/components/preview/crt-overlay'
 
 export function PreviewPanel() {
   const playbackState = useEditorStore((s) => s.playbackState)
@@ -19,7 +20,10 @@ export function PreviewPanel() {
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
       <div className="flex-1 min-h-0 overflow-auto flex items-center justify-center bg-black">
-        <AsciiCanvas />
+        <div className="relative inline-block">
+          <AsciiCanvas />
+          <CrtOverlay />
+        </div>
       </div>
       <PlaybackBar />
     </div>

@@ -1,5 +1,14 @@
 import type { ExportLoop, ColorMode } from '@/lib/constants'
 import type { EncodedFrame } from '@/lib/delta-encoder'
+import { generateCrtCss, generateCrtHtml } from '@/components/preview/crt-overlay'
+
+interface CrtOptions {
+  enabled: boolean
+  vignette: number
+  roundedCorners: number
+  scanlines: number
+  curvature: number
+}
 
 interface ExportOptions {
   frames: EncodedFrame[]
@@ -15,6 +24,8 @@ interface ExportOptions {
   lineHeight: number
   showControls: boolean
   colorMode: ColorMode
+  audioDataUrl: string | null
+  crt?: CrtOptions
 }
 
 export function generateExportHtml(options: ExportOptions): string {
@@ -31,6 +42,7 @@ export function generateExportHtml(options: ExportOptions): string {
     fontSize,
     lineHeight,
     showControls,
+    audioDataUrl,
   } = options
 
   const framesJson = JSON.stringify(frames)
@@ -48,9 +60,15 @@ export function generateExportHtml(options: ExportOptions): string {
     ? `
     var pp=document.getElementById('pp'),sb=document.getElementById('sb'),fi=document.getElementById('fi');
     function updateControls(){if(sb)sb.value=frame;if(fi)fi.textContent=frame+'/'+F.length;}
-    window.togglePlay=function(){if(playing){playing=false;pp.textContent='Play';}else{playing=true;pp.textContent='Pause';run();}};
-    window.seekTo=function(f){frame=f;buildCache(f);render();updateControls();};`
+    window.togglePlay=function(){if(playing){playing=false;pp.textContent='Play';${audioDataUrl ? "if(aud)aud.pause();" : ''}}else{playing=true;pp.textContent='Pause';${audioDataUrl ? "if(aud)aud.play();" : ''}run();}};
+    window.seekTo=function(f){frame=f;buildCache(f);render();updateControls();${audioDataUrl ? "if(aud)aud.currentTime=f/fps;" : ''}};`
     : ''
+
+  const crt = options.crt
+  const crtCss = crt?.enabled ? generateCrtCss(crt) : ''
+  const crtHtml = crt?.enabled ? generateCrtHtml(crt) : ''
+  const wrapStart = crt?.enabled ? '<div class="crt-wrap">' : ''
+  const wrapEnd = crt?.enabled ? `${crtHtml}</div>` : ''
 
   return `<!DOCTYPE html>
 <html>
@@ -61,14 +79,17 @@ export function generateExportHtml(options: ExportOptions): string {
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:${bgColor};display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:16px}
 canvas{display:block;max-width:100%}
+${crtCss}
 </style>
 </head>
 <body>
-<canvas id="c" width="${canvasWidth}" height="${canvasHeight}"></canvas>
+${wrapStart}<canvas id="c" width="${canvasWidth}" height="${canvasHeight}"></canvas>${wrapEnd}
+${audioDataUrl ? `<audio id="aud" src="${audioDataUrl}" preload="auto"></audio>` : ''}
 ${controlsHtml}
 <script>
 (function(){
 var F=${framesJson};
+${audioDataUrl ? 'var aud=document.getElementById("aud");var fps=' + fps + ';' : ''}
 var D=function(s){return s.replace(/~(\\d+)~(.)/g,function(_,n,c){var r='';for(var i=0;i<+n;i++)r+=c;return r;});};
 var canvas=document.getElementById('c');
 var ctx=canvas.getContext('2d');
@@ -135,6 +156,7 @@ function run(){
     cache=null;cacheFrame=-1;
     if(loopMode==='once'||(typeof loopMode==='number'&&playCount>=loopMode)){
       playing=false;
+      ${audioDataUrl ? "if(aud)aud.pause();" : ''}
       ${showControls ? "if(pp)pp.textContent='Play';" : ''}
       return;
     }
@@ -142,7 +164,7 @@ function run(){
   setTimeout(run,1000/fps);
 }
 ${controlsJs}
-${autoplay ? 'run();' : "playing=false;canvas.onclick=function(){playing=true;run();canvas.onclick=null;};"}
+${autoplay ? `${audioDataUrl ? "if(aud)aud.play();" : ''}run();` : `playing=false;canvas.onclick=function(){playing=true;${audioDataUrl ? "if(aud)aud.play();" : ''}run();canvas.onclick=null;};`}
 })();
 </script>
 </body>

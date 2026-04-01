@@ -3,8 +3,10 @@
 import { useEditorStore } from '@/stores/editor-store'
 import { CHARACTER_SETS, FONT_PRESETS } from '@/lib/constants'
 import type { CharacterSetName, ColorMode } from '@/lib/constants'
+import type { BitDepth, AudioSampleRate } from '@/lib/audio-processor'
 import { Label } from '@/components/ui/label'
 import { Slider } from '@/components/ui/slider'
+import { Switch } from '@/components/ui/switch'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 
@@ -103,12 +105,13 @@ export function InputControls() {
             <SelectItem value="monochrome">Monochrome</SelectItem>
             <SelectItem value="colored">Colored</SelectItem>
             <SelectItem value="inverted">Inverted</SelectItem>
+            <SelectItem value="monoscale">Monoscale</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
       {/* Colors */}
-      {store.colorMode !== 'colored' && (
+      {store.colorMode !== 'colored' && store.colorMode !== 'monoscale' && (
         <div className="space-y-2">
           <Label className="text-xs text-muted-foreground">Foreground</Label>
           <input
@@ -210,6 +213,114 @@ export function InputControls() {
           <p className="text-xs text-muted-foreground">
             Duration: <span className="text-foreground">{formatTime(store.trimEnd - store.trimStart)}</span>
           </p>
+        </>
+      )}
+
+      {/* Audio */}
+      {store.videoDuration > 0 && (
+        <>
+          <Separator />
+
+          <div className="flex items-center justify-between">
+            <Label className="text-xs text-muted-foreground">Include Audio</Label>
+            <Switch
+              checked={store.audioEnabled}
+              onCheckedChange={store.setAudioEnabled}
+            />
+          </div>
+
+          {store.audioEnabled && (
+            <>
+              <div className="space-y-2">
+                <Label className="text-xs text-muted-foreground">Bit Depth</Label>
+                <Select
+                  value={String(store.audioBitDepth)}
+                  onValueChange={(v) => v && store.setAudioBitDepth(Number(v) as BitDepth)}
+                >
+                  <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="8">8-bit (NES/Game Boy)</SelectItem>
+                    <SelectItem value="16">16-bit (SNES/Genesis)</SelectItem>
+                    <SelectItem value="32">32-bit (Original)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-xs text-muted-foreground">Sample Rate</Label>
+                <Select
+                  value={String(store.audioSampleRate)}
+                  onValueChange={(v) => v && store.setAudioSampleRate(Number(v) as AudioSampleRate)}
+                >
+                  <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="11025">11 kHz (Lo-fi)</SelectItem>
+                    <SelectItem value="22050">22 kHz (Retro)</SelectItem>
+                    <SelectItem value="44100">44 kHz (CD quality)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </>
+          )}
+        </>
+      )}
+
+      {/* CRT Effects */}
+      <Separator />
+
+      <div className="flex items-center justify-between">
+        <Label className="text-xs text-muted-foreground">CRT Effects</Label>
+        <Switch
+          checked={store.crtEnabled}
+          onCheckedChange={store.setCrtEnabled}
+        />
+      </div>
+
+      {store.crtEnabled && (
+        <>
+          <div className="space-y-2">
+            <Label className="text-xs text-muted-foreground">
+              Vignette <span className="text-foreground ml-1">{store.crtVignette}%</span>
+            </Label>
+            <Slider
+              min={0} max={100} step={1}
+              value={[store.crtVignette]}
+              onValueChange={(v) => store.setCrtVignette(sliderVal(v))}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-xs text-muted-foreground">
+              Scanlines <span className="text-foreground ml-1">{store.crtScanlines}%</span>
+            </Label>
+            <Slider
+              min={0} max={100} step={1}
+              value={[store.crtScanlines]}
+              onValueChange={(v) => store.setCrtScanlines(sliderVal(v))}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-xs text-muted-foreground">
+              Rounded Corners <span className="text-foreground ml-1">{store.crtRoundedCorners}px</span>
+            </Label>
+            <Slider
+              min={0} max={50} step={1}
+              value={[store.crtRoundedCorners]}
+              onValueChange={(v) => store.setCrtRoundedCorners(sliderVal(v))}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-xs text-muted-foreground">
+              Curvature <span className="text-foreground ml-1">{store.crtCurvature}%</span>
+            </Label>
+            <Slider
+              min={0} max={100} step={1}
+              value={[store.crtCurvature]}
+              onValueChange={(v) => store.setCrtCurvature(sliderVal(v))}
+            />
+          </div>
         </>
       )}
     </div>

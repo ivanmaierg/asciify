@@ -9,6 +9,7 @@ import { generateExportAPNG } from '@/lib/export-apng'
 import { generateExportSVG } from '@/lib/export-svg'
 import { generateExportANSI } from '@/lib/export-ansi'
 import { generateWebGPUExportHtml } from '@/lib/export-webgpu'
+import { processAudio, blobToBase64DataUrl } from '@/lib/audio-processor'
 import { EXPORT_FORMAT_LABELS } from '@/lib/constants'
 import { Button } from '@/components/ui/button'
 import { Download, Loader2, CircleAlert } from 'lucide-react'
@@ -58,8 +59,26 @@ export function ExportButton() {
         (p) => s.setExportProgress(p * 0.9), // 0-90% for extraction
       )
 
-      // Phase 2: Generate format-specific output
+      // Phase 1.5: Process audio if enabled and format supports it
       const format = s.exportFormat
+      let audioDataUrl: string | null = null
+      const supportsAudio = format === 'html' || format === 'webgpu'
+      if (s.audioEnabled && supportsAudio && s.videoUrl) {
+        try {
+          const audioBlob = await processAudio({
+            videoUrl: s.videoUrl,
+            trimStart: s.trimStart,
+            trimEnd: s.trimEnd,
+            bitDepth: s.audioBitDepth,
+            sampleRate: s.audioSampleRate,
+          })
+          audioDataUrl = await blobToBase64DataUrl(audioBlob)
+        } catch {
+          // Video may not have audio — continue without it
+        }
+      }
+
+      // Phase 2: Generate format-specific output
       const lineHeight = Math.ceil(s.fontSize * 1.2)
 
       switch (format) {
@@ -85,6 +104,14 @@ export function ExportButton() {
             lineHeight,
             showControls: s.exportShowControls,
             colorMode: s.colorMode,
+            audioDataUrl,
+            crt: {
+              enabled: s.crtEnabled,
+              vignette: s.crtVignette,
+              roundedCorners: s.crtRoundedCorners,
+              scanlines: s.crtScanlines,
+              curvature: s.crtCurvature,
+            },
           })
 
           downloadHtml(html)
@@ -147,6 +174,14 @@ export function ExportButton() {
             bgColor: s.backgroundColor,
             colorMode: s.colorMode,
             showControls: s.exportShowControls,
+            audioDataUrl,
+            crt: {
+              enabled: s.crtEnabled,
+              vignette: s.crtVignette,
+              roundedCorners: s.crtRoundedCorners,
+              scanlines: s.crtScanlines,
+              curvature: s.crtCurvature,
+            },
           })
 
           downloadFile(webgpuHtml, 'ascii-animation-webgpu.html', 'text/html')

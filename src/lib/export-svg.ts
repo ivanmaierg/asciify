@@ -41,6 +41,21 @@ function buildColoredLine(cells: AsciiCell[]): string {
   return spans
 }
 
+function buildMonoscaleLine(cells: AsciiCell[]): string {
+  let spans = ''
+  let i = 0
+  while (i < cells.length) {
+    const g = cells[i].brightness | 0
+    let text = ''
+    while (i < cells.length && (cells[i].brightness | 0) === g) {
+      text += xmlEscape(cells[i].char)
+      i++
+    }
+    spans += `<tspan fill="rgb(${g},${g},${g})">${text}</tspan>`
+  }
+  return spans
+}
+
 export function generateExportSVG(options: SVGExportOptions): string {
   const { frames, fps, loop, fontFamily, fontSize, fgColor, bgColor, colorMode, canvasWidth } = options
 
@@ -73,6 +88,8 @@ export function generateExportSVG(options: SVGExportOptions): string {
       const y = ((row + 1) * lineHeight).toFixed(2)
       if (colorMode === 'colored') {
         textElements += `<text x="0" y="${y}" xml:space="preserve">${buildColoredLine(frame.cells[row])}</text>`
+      } else if (colorMode === 'monoscale') {
+        textElements += `<text x="0" y="${y}" xml:space="preserve">${buildMonoscaleLine(frame.cells[row])}</text>`
       } else {
         textElements += `<text x="0" y="${y}" xml:space="preserve">${xmlEscape(lines[row])}</text>`
       }
@@ -84,7 +101,7 @@ export function generateExportSVG(options: SVGExportOptions): string {
   }
 
   const viewBox = `0 0 ${svgWidth.toFixed(2)} ${svgHeight.toFixed(2)}`
-  const fillAttr = colorMode === 'colored' ? '' : ` fill="${fgColor}"`
+  const fillAttr = colorMode === 'colored' || colorMode === 'monoscale' ? '' : ` fill="${fgColor}"`
 
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}" width="${canvasWidth}" font-family="${fontFamily}, monospace" font-size="${fontSize}"${fillAttr}>
 <style>${keyframes}.f{visibility:hidden;animation:play ${totalDuration.toFixed(4)}s step-end ${iterationCount};}</style>

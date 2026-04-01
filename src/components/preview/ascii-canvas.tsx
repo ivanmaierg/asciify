@@ -5,6 +5,7 @@ import { useEditorStore } from '@/stores/editor-store'
 import { convertFrameToAscii } from '@/lib/ascii-engine'
 import { renderAsciiToCanvas } from '@/lib/pretext-renderer'
 import { WebGPURenderer } from '@/lib/webgpu-renderer'
+import { connectAudioPreview, disconnectAudioPreview } from '@/lib/audio-preview'
 import { CHARACTER_SETS } from '@/lib/constants'
 import type { CharacterSetName } from '@/lib/constants'
 
@@ -45,7 +46,7 @@ export function AsciiCanvas() {
     const video = document.createElement('video')
     video.crossOrigin = 'anonymous'
     video.playsInline = true
-    video.muted = true
+    video.muted = !useEditorStore.getState().audioEnabled
     video.src = store.videoUrl
 
     video.addEventListener('loadedmetadata', () => {
@@ -81,13 +82,33 @@ export function AsciiCanvas() {
     ec.height = Math.round(store.videoHeight * scale)
   }, [store.videoWidth, store.videoHeight])
 
+  // Sync audio: connect/disconnect bitcrusher preview
+  useEffect(() => {
+    const video = videoRef.current
+    if (!video) return
+
+    if (store.audioEnabled) {
+      connectAudioPreview(video, store.audioBitDepth, store.audioSampleRate).catch(() => {
+        // Fallback: just unmute
+        video.muted = false
+      })
+    } else {
+      disconnectAudioPreview()
+      video.muted = true
+    }
+
+    return () => {
+      disconnectAudioPreview()
+    }
+  }, [store.audioEnabled, store.audioBitDepth, store.audioSampleRate])
+
   // Init/recreate WebGPU renderer when charset/font changes
   useEffect(() => {
     if (!useWebGPU || !canvasRef.current || !store.videoWidth) return
 
     const s = useEditorStore.getState()
     const charset = getCharset(s.characterSet, s.customCharacters)
-    const colorModeNum = s.colorMode === 'colored' ? 1 : s.colorMode === 'inverted' ? 2 : 0
+    const colorModeNum = s.colorMode === 'colored' ? 1 : s.colorMode === 'inverted' ? 2 : s.colorMode === 'monoscale' ? 3 : 0
 
     // Estimate rows from video aspect ratio
     const aspectRatio = store.videoWidth / store.videoHeight
@@ -134,7 +155,7 @@ export function AsciiCanvas() {
   useEffect(() => {
     if (!gpuRef.current) return
     const s = useEditorStore.getState()
-    const colorModeNum = s.colorMode === 'colored' ? 1 : s.colorMode === 'inverted' ? 2 : 0
+    const colorModeNum = s.colorMode === 'colored' ? 1 : s.colorMode === 'inverted' ? 2 : s.colorMode === 'monoscale' ? 3 : 0
     gpuRef.current.updateColors(
       hexToRgb01(s.backgroundColor),
       hexToRgb01(s.foregroundColor),
@@ -197,7 +218,7 @@ export function AsciiCanvas() {
         lineHeight,
         canvasWidth,
         canvasHeight,
-        s.colorMode === 'colored' ? undefined : s.foregroundColor,
+        s.colorMode === 'colored' || s.colorMode === 'monoscale' ? undefined : s.foregroundColor,
         s.backgroundColor,
         s.colorMode,
       )

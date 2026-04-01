@@ -2,6 +2,7 @@ import type { AsciiFrame } from '@/lib/ascii-engine'
 import type { ExportLoop, ColorMode } from '@/lib/constants'
 import { deltaEncode } from '@/lib/delta-encoder'
 import { createGlyphAtlas } from '@/lib/glyph-atlas'
+import { generateCrtCss, generateCrtHtml } from '@/components/preview/crt-overlay'
 
 export interface WebGPUExportOptions {
   frames: AsciiFrame[]
@@ -17,6 +18,14 @@ export interface WebGPUExportOptions {
   bgColor: string
   colorMode: ColorMode
   showControls: boolean
+  audioDataUrl: string | null
+  crt?: {
+    enabled: boolean
+    vignette: number
+    roundedCorners: number
+    scanlines: number
+    curvature: number
+  }
 }
 
 function hexToRgb01(hex: string): [number, number, number] {
@@ -92,8 +101,9 @@ export function generateWebGPUExportHtml(options: WebGPUExportOptions): string {
 
   // For colored mode, pack per-cell binary data (charIndex + RGB per cell)
   const isColored = colorMode === 'colored'
+  const isMonoscale = colorMode === 'monoscale'
   let packedFramesB64: string[] | null = null
-  if (isColored) {
+  if (isColored || isMonoscale) {
     packedFramesB64 = frames.map((f) =>
       uint32ArrayToBase64(packFrameCells(f, columns, rows, charToIndex)),
     )
@@ -104,7 +114,7 @@ export function generateWebGPUExportHtml(options: WebGPUExportOptions): string {
   const [bgR, bgG, bgB] = hexToRgb01(bgColor)
   const [fgR, fgG, fgB] = hexToRgb01(fgColor)
   const [fgR255, fgG255, fgB255] = hexToRgb255(fgColor)
-  const colorModeNum = isColored ? 1 : colorMode === 'inverted' ? 2 : 0
+  const colorModeNum = isColored ? 1 : colorMode === 'inverted' ? 2 : isMonoscale ? 3 : 0
   const lineHeight = Math.ceil(fontSize * 1.2)
   const canvasW = Math.ceil(atlas.charWidth * columns)
   const canvasH = rows * lineHeight
@@ -133,10 +143,12 @@ function b64toU32(b){var s=atob(b),n=s.length,u=new Uint8Array(n);for(var i=0;i<
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:${bgColor};display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:16px}
 canvas{display:block;max-width:100%}
+${options.crt?.enabled ? generateCrtCss(options.crt) : ''}
 </style>
 </head>
 <body>
-<canvas id="c" width="${canvasW}" height="${canvasH}"></canvas>
+${options.crt?.enabled ? '<div class="crt-wrap">' : ''}<canvas id="c" width="${canvasW}" height="${canvasH}"></canvas>${options.crt?.enabled ? generateCrtHtml(options.crt) + '</div>' : ''}
+${options.audioDataUrl ? `<audio id="aud" src="${options.audioDataUrl}" preload="auto"></audio>` : ''}
 ${controlsHtml}
 <script>
 (function(){
@@ -153,12 +165,13 @@ function buildCache(t){var kf=0;for(var i=t;i>=0;i--){if(typeof F[i]==='string')
 function getFrame(idx){if(cache===null||idx===0||cacheFrame!==idx-1){buildCache(idx);return cache.join('');}var f=F[idx];if(typeof f==='string'){cache=D(f).split('');cacheFrame=idx;return cache.join('');}for(var j=0;j<f.length;j++){var p=f[j][0],s=f[j][1];for(var k=0;k<s.length;k++)cache[p+k]=s[k];}cacheFrame=idx;return cache.join('');}
 
 var frame=0,playCount=0,playing=${autoplay},renderFrame=null;
+${options.audioDataUrl ? 'var aud=document.getElementById("aud");' : ''}
 
 ${showControls ? `
 var pp=document.getElementById('pp'),sb=document.getElementById('sb'),fi=document.getElementById('fi');
 function updateControls(){if(sb)sb.value=frame;if(fi)fi.textContent=frame+'/'+F.length;}
-window.togglePlay=function(){if(playing){playing=false;if(pp)pp.textContent='Play';}else{playing=true;if(pp)pp.textContent='Pause';run();}};
-window.seekTo=function(f){frame=f;if(renderFrame)renderFrame();${showControls ? 'updateControls();' : ''}};
+window.togglePlay=function(){if(playing){playing=false;if(pp)pp.textContent='Play';${options.audioDataUrl ? "if(aud)aud.pause();" : ''}}else{playing=true;if(pp)pp.textContent='Pause';${options.audioDataUrl ? "if(aud)aud.play();" : ''}run();}};
+window.seekTo=function(f){frame=f;if(renderFrame)renderFrame();${showControls ? 'updateControls();' : ''}${options.audioDataUrl ? "if(aud)aud.currentTime=f/FPS;" : ''}};
 ` : ''}
 
 function run(){
@@ -167,7 +180,7 @@ function run(){
   ${showControls ? 'updateControls();' : ''}
   frame++;
   if(frame>=F.length){frame=0;playCount++;cache=null;cacheFrame=-1;
-    if(LOOP==='once'||(typeof LOOP==='number'&&playCount>=LOOP)){playing=false;${showControls ? "if(pp)pp.textContent='Play';" : ''}return;}
+    if(LOOP==='once'||(typeof LOOP==='number'&&playCount>=LOOP)){playing=false;${options.audioDataUrl ? "if(aud)aud.pause();" : ''}${showControls ? "if(pp)pp.textContent='Play';" : ''}return;}
   }
   setTimeout(run,1000/FPS);
 }
@@ -191,6 +204,21 @@ function initCanvas2D(){
         ctx.fillText(ch,co*cw,r*${lineHeight});
       }}
     }
+  };` : isMonoscale ? `
+  var cw=ctx.measureText('M').width;
+  renderFrame=function(){
+    ctx.fillStyle='${bgColor}';ctx.fillRect(0,0,c.width,c.height);
+    if(typeof PF!=='undefined'&&PF[frame]){
+      var d=b64toU32(PF[frame]);
+      for(var r=0;r<ROWS;r++){for(var co=0;co<COLS;co++){
+        var pk=d[r*COLS+co];var ch=CHARSET[pk&0xFF]||' ';
+        if(ch===' ')continue;
+        var cr=(pk>>8)&0xFF,cg=(pk>>16)&0xFF,cb=(pk>>24)&0xFF;
+        var lm=Math.round(0.299*cr+0.587*cg+0.114*cb);
+        ctx.fillStyle='rgb('+lm+','+lm+','+lm+')';
+        ctx.fillText(ch,co*cw,r*${lineHeight});
+      }}
+    }
   };` : `
   renderFrame=function(){
     var text=getFrame(frame);
@@ -200,7 +228,7 @@ function initCanvas2D(){
     for(var i=0;i<lines.length;i++)ctx.fillText(lines[i],0,i*${lineHeight});
   };`}
   renderFrame();
-  if(playing)run();
+  if(playing){${options.audioDataUrl ? "if(aud)aud.play();" : ''}run();}
 }
 
 async function initWebGPU(){
@@ -259,7 +287,7 @@ async function initWebGPU(){
     'let tx=u32((f32(ac2)+cuv.x)*p.cW);let ty=u32((f32(ar)+cuv.y)*p.cH);'+
     'let gl=textureLoad(t,vec2(tx,ty),0);let a=gl.r;'+
     'var col=vec3(p.fR,p.fG,p.fB);'+
-    'if(p.cm==1u){col=vec3(r,g,b);}'+
+    'if(p.cm==1u){col=vec3(r,g,b);}else if(p.cm==3u){let lm=0.299*r+0.587*g+0.114*b;col=vec3(lm,lm,lm);}'+
     'return vec4(mix(vec3(p.bR,p.bG,p.bB),col,a),1.0);}'
   });
 
@@ -306,7 +334,7 @@ async function initWebGPU(){
     }catch(e){console.error('WebGPU render failed:',e);initCanvas2D();}
   };
   renderFrame();
-  if(playing)run();
+  if(playing){${options.audioDataUrl ? "if(aud)aud.play();" : ''}run();}
 }
 
 if(navigator.gpu){initWebGPU().catch(function(e){console.warn('WebGPU failed, using Canvas2D:',e);initCanvas2D();});}

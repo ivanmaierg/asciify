@@ -44,7 +44,7 @@ export function ExportSettings() {
 
     if (format === 'ansi') {
       // ANSI: chars + escape codes
-      const colorOverhead = store.colorMode === 'colored' ? 20 : 0 // per char ANSI codes
+      const colorOverhead = store.colorMode === 'colored' || store.colorMode === 'monoscale' ? 20 : 0 // per char ANSI codes
       return (charsPerFrame + charsPerFrame * colorOverhead) * totalFrames + 512
     }
 

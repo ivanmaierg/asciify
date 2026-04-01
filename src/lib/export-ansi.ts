@@ -49,6 +49,22 @@ function buildColoredLine(cells: { char: string; r: number; g: number; b: number
   return result
 }
 
+function buildMonoscaleLine(cells: { char: string; brightness: number }[]): string {
+  let result = ''
+  let prevG = -1
+
+  for (const cell of cells) {
+    const g = cell.brightness | 0
+    if (g !== prevG) {
+      result += `\\033[38;2;${g};${g};${g}m`
+      prevG = g
+    }
+    result += escapeForPrintf(cell.char)
+  }
+
+  return result
+}
+
 export function generateExportANSI(options: ANSIExportOptions): string {
   const { frames, fps, loop, colorMode, fgColor } = options
   const delay = (1 / fps).toFixed(4)
@@ -66,8 +82,8 @@ export function generateExportANSI(options: ANSIExportOptions): string {
   lines.push(`DELAY=${delay}`)
   lines.push('')
 
-  // Set monochrome color once if not colored mode
-  if (colorMode !== 'colored') {
+  // Set monochrome color once if not colored/monoscale mode
+  if (colorMode !== 'colored' && colorMode !== 'monoscale') {
     lines.push(`printf '\\033[38;2;${fgR};${fgG};${fgB}m'`)
   }
 
@@ -83,6 +99,10 @@ export function generateExportANSI(options: ANSIExportOptions): string {
     if (colorMode === 'colored') {
       for (const row of frame.cells) {
         lines.push(`  printf '${buildColoredLine(row)}\\n'`)
+      }
+    } else if (colorMode === 'monoscale') {
+      for (const row of frame.cells) {
+        lines.push(`  printf '${buildMonoscaleLine(row)}\\n'`)
       }
     } else {
       for (const line of frameLines) {

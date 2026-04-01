@@ -27,6 +27,20 @@ export function renderAsciiToCanvas(
     for (let i = 0; i < lines.length; i++) {
       ctx.fillText(lines[i], 0, i * lineHeight)
     }
+  } else if (colorMode === 'monoscale') {
+    // Grayscale — each character shaded by its brightness
+    const charWidth = ctx.measureText('M').width
+
+    for (let row = 0; row < cells.length; row++) {
+      const rowCells = cells[row]
+      for (let col = 0; col < rowCells.length; col++) {
+        const cell = rowCells[col]
+        if (cell.char === ' ') continue
+        const g = cell.brightness | 0
+        ctx.fillStyle = `rgb(${g},${g},${g})`
+        ctx.fillText(cell.char, col * charWidth, row * lineHeight)
+      }
+    }
   } else {
     // Colored mode — draw character by character with individual colors
     // Cache monospace character width
