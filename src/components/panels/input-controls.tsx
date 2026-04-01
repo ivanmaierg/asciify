@@ -175,6 +175,50 @@ export function InputControls() {
           onValueChange={(v) => store.setFrameSkip(sliderVal(v))}
         />
       </div>
+
+      {/* Trim */}
+      {store.videoDuration > 0 && (
+        <>
+          <Separator />
+
+          <div className="space-y-2">
+            <Label className="text-xs text-muted-foreground">
+              Start <span className="text-foreground ml-1">{formatTime(store.trimStart)}</span>
+            </Label>
+            <Slider
+              min={0}
+              max={store.videoDuration}
+              step={0.1}
+              value={[store.trimStart]}
+              onValueChange={(v) => store.setTrimStart(sliderVal(v))}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-xs text-muted-foreground">
+              End <span className="text-foreground ml-1">{formatTime(store.trimEnd)}</span>
+            </Label>
+            <Slider
+              min={0}
+              max={store.videoDuration}
+              step={0.1}
+              value={[store.trimEnd]}
+              onValueChange={(v) => store.setTrimEnd(sliderVal(v))}
+            />
+          </div>
+
+          <p className="text-xs text-muted-foreground">
+            Duration: <span className="text-foreground">{formatTime(store.trimEnd - store.trimStart)}</span>
+          </p>
+        </>
+      )}
     </div>
   )
+}
+
+function formatTime(seconds: number): string {
+  const m = Math.floor(seconds / 60)
+  const s = Math.floor(seconds % 60)
+  const ms = Math.floor((seconds % 1) * 10)
+  return `${m}:${s.toString().padStart(2, '0')}.${ms}`
 }

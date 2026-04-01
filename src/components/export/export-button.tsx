@@ -44,6 +44,8 @@ export function ExportButton() {
         {
           videoUrl: s.videoUrl,
           videoDuration: s.videoDuration,
+          startTime: s.trimStart,
+          endTime: s.trimEnd,
           frameRate: s.frameRate,
           frameSkip: s.frameSkip,
           columns: s.columns,

@@ -30,6 +30,10 @@ interface EditorState {
   fontSize: number
   frameSkip: number
 
+  // Trim
+  trimStart: number
+  trimEnd: number
+
   // Playback
   playbackState: PlaybackState
   currentTime: number
@@ -64,6 +68,8 @@ interface EditorState {
   setFontFamily: (value: string) => void
   setFontSize: (value: number) => void
   setFrameSkip: (value: number) => void
+  setTrimStart: (value: number) => void
+  setTrimEnd: (value: number) => void
   setPlaybackState: (state: PlaybackState) => void
   setCurrentTime: (time: number) => void
   setExportFormat: (value: ExportFormat) => void
@@ -99,6 +105,10 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   fontFamily: DEFAULT_SETTINGS.fontFamily,
   fontSize: DEFAULT_SETTINGS.fontSize,
   frameSkip: DEFAULT_SETTINGS.frameSkip,
+
+  // Trim
+  trimStart: 0,
+  trimEnd: 0,
 
   // Playback
   playbackState: 'empty',
@@ -155,6 +165,8 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   setFontFamily: (value) => set({ fontFamily: value }),
   setFontSize: (value) => set({ fontSize: value }),
   setFrameSkip: (value) => set({ frameSkip: value }),
+  setTrimStart: (value) => set((s) => ({ trimStart: Math.min(value, s.trimEnd - 0.5) })),
+  setTrimEnd: (value) => set((s) => ({ trimEnd: Math.max(value, s.trimStart + 0.5) })),
   setPlaybackState: (state) => set({ playbackState: state }),
   setCurrentTime: (time) => set({ currentTime: time }),
   setExportFormat: (value) => set({ exportFormat: value, exportedOutput: null, exportedBlob: null }),

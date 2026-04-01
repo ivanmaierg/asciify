@@ -53,6 +53,8 @@ export function AsciiCanvas() {
         videoDuration: video.duration,
         videoWidth: video.videoWidth,
         videoHeight: video.videoHeight,
+        trimStart: 0,
+        trimEnd: video.duration,
         playbackState: 'paused',
       })
     })
@@ -199,6 +201,12 @@ export function AsciiCanvas() {
         s.backgroundColor,
         s.colorMode,
       )
+    }
+
+    // Loop within trim bounds
+    const { trimStart, trimEnd } = s
+    if (video.currentTime >= trimEnd) {
+      video.currentTime = trimStart
     }
 
     useEditorStore.setState({ currentTime: video.currentTime })

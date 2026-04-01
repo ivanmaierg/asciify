@@ -6,6 +6,8 @@ import type { CharacterSetName, ColorMode } from '@/lib/constants'
 export interface FrameExtractionConfig {
   videoUrl: string
   videoDuration: number
+  startTime: number
+  endTime: number
   frameRate: number
   frameSkip: number
   columns: number
@@ -53,12 +55,13 @@ export async function extractFrames(
 
   const charset = getCharset(config.characterSet, config.customCharacters)
   const frameDuration = (1 / config.frameRate) * config.frameSkip
-  const totalFrames = Math.floor(config.videoDuration / frameDuration)
+  const segmentDuration = config.endTime - config.startTime
+  const totalFrames = Math.floor(segmentDuration / frameDuration)
   const frames: AsciiFrame[] = []
   let rows = 0
 
   for (let i = 0; i < totalFrames; i++) {
-    video.currentTime = i * frameDuration
+    video.currentTime = config.startTime + i * frameDuration
     await new Promise<void>((resolve) => {
       video.onseeked = () => resolve()
     })

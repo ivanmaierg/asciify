@@ -19,6 +19,8 @@ export function PlaybackBar() {
   const playbackState = useEditorStore((s) => s.playbackState)
   const currentTime = useEditorStore((s) => s.currentTime)
   const duration = useEditorStore((s) => s.videoDuration)
+  const trimStart = useEditorStore((s) => s.trimStart)
+  const trimEnd = useEditorStore((s) => s.trimEnd)
   const setPlaybackState = useEditorStore((s) => s.setPlaybackState)
   const clearVideo = useEditorStore((s) => s.clearVideo)
 
@@ -47,14 +49,14 @@ export function PlaybackBar() {
         )}
       </Button>
 
-      <span className="text-xs text-muted-foreground tabular-nums w-20">
-        {formatTime(currentTime)} / {formatTime(duration)}
+      <span className="text-xs text-muted-foreground tabular-nums w-24">
+        {formatTime(currentTime)} / {formatTime(trimEnd)}
       </span>
 
       <Slider
         className="flex-1"
-        min={0}
-        max={duration || 1}
+        min={trimStart}
+        max={trimEnd || duration || 1}
         step={0.01}
         value={[currentTime]}
         onValueChange={handleSeek}
