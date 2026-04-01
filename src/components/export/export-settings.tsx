@@ -18,8 +18,8 @@ export function ExportSettings() {
   const store = useEditorStore()
   const disabled = store.playbackState === 'empty'
   const format = store.exportFormat
-  const showAutoplay = format === 'html'
-  const showControls = format === 'html'
+  const showAutoplay = format === 'html' || format === 'webgpu'
+  const showControls = format === 'html' || format === 'webgpu'
   const showCanvasWidth = format !== 'ansi'
 
   // Estimated file size

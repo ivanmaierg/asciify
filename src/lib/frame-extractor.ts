@@ -1,4 +1,5 @@
-import { convertFrameToAscii, type AsciiFrame } from '@/lib/ascii-engine'
+import type { AsciiFrame } from '@/lib/ascii-engine'
+import { convertFrameInWorker, terminateWorker } from '@/lib/ascii-worker'
 import { CHARACTER_SETS } from '@/lib/constants'
 import type { CharacterSetName, ColorMode } from '@/lib/constants'
 
@@ -43,9 +44,11 @@ export async function extractFrames(
     video.onerror = () => reject(new Error('Failed to load video'))
   })
 
+  const MAX_SOURCE_WIDTH = 720
+  const scale = Math.min(1, MAX_SOURCE_WIDTH / video.videoWidth)
   const extractionCanvas = document.createElement('canvas')
-  extractionCanvas.width = video.videoWidth
-  extractionCanvas.height = video.videoHeight
+  extractionCanvas.width = Math.round(video.videoWidth * scale)
+  extractionCanvas.height = Math.round(video.videoHeight * scale)
   const ectx = extractionCanvas.getContext('2d', { willReadFrequently: true })!
 
   const charset = getCharset(config.characterSet, config.customCharacters)
@@ -63,7 +66,8 @@ export async function extractFrames(
     ectx.drawImage(video, 0, 0, extractionCanvas.width, extractionCanvas.height)
     const imageData = ectx.getImageData(0, 0, extractionCanvas.width, extractionCanvas.height)
 
-    const result = convertFrameToAscii(
+    // Convert in worker thread
+    const result = await convertFrameInWorker(
       imageData,
       config.columns,
       charset,
@@ -76,13 +80,12 @@ export async function extractFrames(
     if (i === 0) rows = result.cells.length
 
     onProgress((i + 1) / totalFrames)
-
-    if (i % 5 === 0) await new Promise((r) => setTimeout(r, 0))
   }
 
   // Cleanup
   video.removeAttribute('src')
   video.load()
+  terminateWorker()
 
   return {
     frames,

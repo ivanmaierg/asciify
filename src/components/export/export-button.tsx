@@ -3,11 +3,12 @@
 import { useCallback, useState } from 'react'
 import { useEditorStore } from '@/stores/editor-store'
 import { extractFrames } from '@/lib/frame-extractor'
-import { rleEncode } from '@/lib/rle'
+import { deltaEncode } from '@/lib/delta-encoder'
 import { generateExportHtml, downloadHtml } from '@/lib/html-export'
 import { generateExportAPNG } from '@/lib/export-apng'
 import { generateExportSVG } from '@/lib/export-svg'
 import { generateExportANSI } from '@/lib/export-ansi'
+import { generateWebGPUExportHtml } from '@/lib/export-webgpu'
 import { EXPORT_FORMAT_LABELS } from '@/lib/constants'
 import { Button } from '@/components/ui/button'
 import { Download, Loader2, CircleAlert } from 'lucide-react'
@@ -61,11 +62,15 @@ export function ExportButton() {
 
       switch (format) {
         case 'html': {
-          const rleFrames = extracted.frames.map((f) => rleEncode(f.text))
+          const keyframeInterval = s.exportFps * 2
+          const { frames: encodedFrames } = deltaEncode(
+            extracted.frames.map((f) => f.text),
+            keyframeInterval,
+          )
           const canvasHeight = extracted.rows * lineHeight
 
           const html = generateExportHtml({
-            frames: rleFrames,
+            frames: encodedFrames,
             fps: s.exportFps,
             loop: s.exportLoop,
             autoplay: s.exportAutoplay,
@@ -122,6 +127,28 @@ export function ExportButton() {
 
           downloadFile(svg, 'ascii-animation.svg', 'image/svg+xml')
           s.setExportedOutput(svg)
+          break
+        }
+
+        case 'webgpu': {
+          const webgpuHtml = generateWebGPUExportHtml({
+            frames: extracted.frames,
+            rows: extracted.rows,
+            columns: extracted.columns,
+            fps: s.exportFps,
+            loop: s.exportLoop,
+            autoplay: s.exportAutoplay,
+            canvasWidth: s.exportCanvasWidth,
+            fontFamily: s.fontFamily,
+            fontSize: s.fontSize,
+            fgColor: s.foregroundColor,
+            bgColor: s.backgroundColor,
+            colorMode: s.colorMode,
+            showControls: s.exportShowControls,
+          })
+
+          downloadFile(webgpuHtml, 'ascii-animation-webgpu.html', 'text/html')
+          s.setExportedOutput(webgpuHtml)
           break
         }
 

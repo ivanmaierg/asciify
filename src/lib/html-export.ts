@@ -1,7 +1,8 @@
 import type { ExportLoop, ColorMode } from '@/lib/constants'
+import type { EncodedFrame } from '@/lib/delta-encoder'
 
 interface ExportOptions {
-  frames: string[]
+  frames: EncodedFrame[]
   fps: number
   loop: ExportLoop
   autoplay: boolean
@@ -14,7 +15,6 @@ interface ExportOptions {
   lineHeight: number
   showControls: boolean
   colorMode: ColorMode
-  colorData?: string[]
 }
 
 export function generateExportHtml(options: ExportOptions): string {
@@ -48,8 +48,8 @@ export function generateExportHtml(options: ExportOptions): string {
     ? `
     var pp=document.getElementById('pp'),sb=document.getElementById('sb'),fi=document.getElementById('fi');
     function updateControls(){if(sb)sb.value=frame;if(fi)fi.textContent=frame+'/'+F.length;}
-    function togglePlay(){if(playing){playing=false;pp.textContent='Play';}else{playing=true;pp.textContent='Pause';run();}}
-    function seekTo(f){frame=f;render();updateControls();}`
+    window.togglePlay=function(){if(playing){playing=false;pp.textContent='Play';}else{playing=true;pp.textContent='Pause';run();}};
+    window.seekTo=function(f){frame=f;buildCache(f);render();updateControls();};`
     : ''
 
   return `<!DOCTYPE html>
@@ -77,13 +77,44 @@ var loopMode=${loopJson};
 var frame=0;
 var playCount=0;
 var playing=true;
-var timer=null;
+var cache=null;
+var cacheFrame=-1;
 
 ctx.font='${fontSize}px ${fontFamily}, monospace';
 ctx.textBaseline='top';
 
+function buildCache(target){
+  // Find nearest keyframe at or before target
+  var kf=0;
+  for(var i=target;i>=0;i--){if(typeof F[i]==='string'){kf=i;break;}}
+  cache=D(F[kf]).split('');
+  cacheFrame=kf;
+  // Apply deltas forward
+  for(var i=kf+1;i<=target;i++){
+    var d=F[i];
+    if(typeof d==='string'){cache=D(d).split('');cacheFrame=i;continue;}
+    for(var j=0;j<d.length;j++){
+      var p=d[j][0],s=d[j][1];
+      for(var k=0;k<s.length;k++)cache[p+k]=s[k];
+    }
+    cacheFrame=i;
+  }
+}
+
+function getFrameText(idx){
+  if(cache===null||idx===0||cacheFrame!==idx-1){buildCache(idx);return cache.join('');}
+  var f=F[idx];
+  if(typeof f==='string'){cache=D(f).split('');cacheFrame=idx;return cache.join('');}
+  for(var j=0;j<f.length;j++){
+    var p=f[j][0],s=f[j][1];
+    for(var k=0;k<s.length;k++)cache[p+k]=s[k];
+  }
+  cacheFrame=idx;
+  return cache.join('');
+}
+
 function render(){
-  var text=D(F[frame]);
+  var text=getFrameText(frame);
   ctx.fillStyle='${bgColor}';
   ctx.fillRect(0,0,canvas.width,canvas.height);
   ctx.fillStyle='${fgColor}';
@@ -101,13 +132,14 @@ function run(){
   if(frame>=F.length){
     frame=0;
     playCount++;
+    cache=null;cacheFrame=-1;
     if(loopMode==='once'||(typeof loopMode==='number'&&playCount>=loopMode)){
       playing=false;
       ${showControls ? "if(pp)pp.textContent='Play';" : ''}
       return;
     }
   }
-  timer=setTimeout(run,1000/fps);
+  setTimeout(run,1000/fps);
 }
 ${controlsJs}
 ${autoplay ? 'run();' : "playing=false;canvas.onclick=function(){playing=true;run();canvas.onclick=null;};"}

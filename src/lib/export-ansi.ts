@@ -19,7 +19,10 @@ function hexToRgb(hex: string): [number, number, number] {
 }
 
 function escapeForPrintf(str: string): string {
-  return str.replace(/%/g, '%%').replace(/\\/g, '\\\\')
+  return str
+    .replace(/\\/g, '\\\\')
+    .replace(/%/g, '%%')
+    .replace(/'/g, "'\"'\"'")
 }
 
 function buildMonochromeLine(line: string): string {

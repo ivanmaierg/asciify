@@ -1,9 +1,10 @@
 'use client'
 
-import { useRef, useEffect, useCallback } from 'react'
+import { useRef, useEffect, useCallback, useState } from 'react'
 import { useEditorStore } from '@/stores/editor-store'
 import { convertFrameToAscii } from '@/lib/ascii-engine'
 import { renderAsciiToCanvas } from '@/lib/pretext-renderer'
+import { WebGPURenderer } from '@/lib/webgpu-renderer'
 import { CHARACTER_SETS } from '@/lib/constants'
 import type { CharacterSetName } from '@/lib/constants'
 
@@ -12,14 +13,30 @@ function getCharset(name: CharacterSetName, custom: string): string {
   return CHARACTER_SETS[name]
 }
 
+function hexToRgb01(hex: string): [number, number, number] {
+  const h = hex.replace('#', '')
+  return [
+    parseInt(h.slice(0, 2), 16) / 255,
+    parseInt(h.slice(2, 4), 16) / 255,
+    parseInt(h.slice(4, 6), 16) / 255,
+  ]
+}
+
 export function AsciiCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
   const extractionCanvasRef = useRef<HTMLCanvasElement>(null)
   const rafRef = useRef<number>(0)
   const fpsRef = useRef({ frames: 0, lastTime: performance.now(), value: 0 })
+  const gpuRef = useRef<WebGPURenderer | null>(null)
+  const [useWebGPU, setUseWebGPU] = useState(false)
 
   const store = useEditorStore()
+
+  // Check WebGPU availability
+  useEffect(() => {
+    WebGPURenderer.isAvailable().then(setUseWebGPU)
+  }, [])
 
   // Create video element and load source
   useEffect(() => {
@@ -42,7 +59,6 @@ export function AsciiCanvas() {
 
     videoRef.current = video
 
-    // Create extraction canvas matching video dimensions
     const extractionCanvas = document.createElement('canvas')
     extractionCanvasRef.current = extractionCanvas
 
@@ -53,13 +69,76 @@ export function AsciiCanvas() {
     }
   }, [store.videoUrl])
 
-  // Sync extraction canvas size to video dimensions
+  // Sync extraction canvas size
   useEffect(() => {
     const ec = extractionCanvasRef.current
     if (!ec || !store.videoWidth) return
-    ec.width = store.videoWidth
-    ec.height = store.videoHeight
+    const MAX_SOURCE_WIDTH = 720
+    const scale = Math.min(1, MAX_SOURCE_WIDTH / store.videoWidth)
+    ec.width = Math.round(store.videoWidth * scale)
+    ec.height = Math.round(store.videoHeight * scale)
   }, [store.videoWidth, store.videoHeight])
+
+  // Init/recreate WebGPU renderer when charset/font changes
+  useEffect(() => {
+    if (!useWebGPU || !canvasRef.current || !store.videoWidth) return
+
+    const s = useEditorStore.getState()
+    const charset = getCharset(s.characterSet, s.customCharacters)
+    const colorModeNum = s.colorMode === 'colored' ? 1 : s.colorMode === 'inverted' ? 2 : 0
+
+    // Estimate rows from video aspect ratio
+    const aspectRatio = store.videoWidth / store.videoHeight
+    const rows = Math.max(1, Math.round((s.columns / aspectRatio) * 0.5))
+
+    gpuRef.current?.destroy()
+    gpuRef.current = null
+
+    WebGPURenderer.create({
+      canvas: canvasRef.current,
+      gridColumns: s.columns,
+      gridRows: rows,
+      charset,
+      fontFamily: s.fontFamily,
+      fontSize: s.fontSize,
+      bgColor: hexToRgb01(s.backgroundColor),
+      fgColor: hexToRgb01(s.foregroundColor),
+      colorMode: colorModeNum,
+    })
+      .then((renderer) => {
+        gpuRef.current = renderer
+      })
+      .catch(() => {
+        // Fallback to Canvas2D silently
+        setUseWebGPU(false)
+      })
+
+    return () => {
+      gpuRef.current?.destroy()
+      gpuRef.current = null
+    }
+  }, [
+    useWebGPU,
+    store.characterSet,
+    store.customCharacters,
+    store.fontFamily,
+    store.fontSize,
+    store.columns,
+    store.videoWidth,
+    store.videoHeight,
+  ])
+
+  // Update WebGPU uniforms when colors change
+  useEffect(() => {
+    if (!gpuRef.current) return
+    const s = useEditorStore.getState()
+    const colorModeNum = s.colorMode === 'colored' ? 1 : s.colorMode === 'inverted' ? 2 : 0
+    gpuRef.current.updateColors(
+      hexToRgb01(s.backgroundColor),
+      hexToRgb01(s.foregroundColor),
+      colorModeNum,
+    )
+  }, [store.foregroundColor, store.backgroundColor, store.colorMode])
 
   // Render loop
   const renderFrame = useCallback(() => {
@@ -72,15 +151,12 @@ export function AsciiCanvas() {
     const ectx = extractionCanvas.getContext('2d', { willReadFrequently: true })
     if (!ectx) return
 
-    // Draw current video frame to extraction canvas
     ectx.drawImage(video, 0, 0, extractionCanvas.width, extractionCanvas.height)
     const imageData = ectx.getImageData(0, 0, extractionCanvas.width, extractionCanvas.height)
 
-    // Get current settings from store
     const s = useEditorStore.getState()
     const charset = getCharset(s.characterSet, s.customCharacters)
 
-    // Convert to ASCII
     const result = convertFrameToAscii(
       imageData,
       s.columns,
@@ -90,43 +166,43 @@ export function AsciiCanvas() {
       s.colorMode,
     )
 
-    // Calculate canvas dimensions
-    const lineHeight = Math.ceil(s.fontSize * 1.2)
-    const rows = result.cells.length
-    const canvasHeight = rows * lineHeight
-    const font = `${s.fontSize}px ${s.fontFamily}, monospace`
+    // Try WebGPU first, fall back to Canvas2D
+    if (gpuRef.current) {
+      gpuRef.current.updateFrame(result.cells)
+      gpuRef.current.render()
+    } else {
+      const lineHeight = Math.ceil(s.fontSize * 1.2)
+      const rows = result.cells.length
+      const canvasHeight = rows * lineHeight
+      const font = `${s.fontSize}px ${s.fontFamily}, monospace`
 
-    // Measure a character to determine canvas width
-    const dctx = displayCanvas.getContext('2d')
-    if (!dctx) return
-    dctx.font = font
-    const charWidth = dctx.measureText('M').width
-    const canvasWidth = Math.ceil(charWidth * s.columns)
+      const dctx = displayCanvas.getContext('2d')
+      if (!dctx) return
+      dctx.font = font
+      const charWidth = dctx.measureText('M').width
+      const canvasWidth = Math.ceil(charWidth * s.columns)
 
-    // Size the display canvas
-    if (displayCanvas.width !== canvasWidth || displayCanvas.height !== canvasHeight) {
-      displayCanvas.width = canvasWidth
-      displayCanvas.height = canvasHeight
+      if (displayCanvas.width !== canvasWidth || displayCanvas.height !== canvasHeight) {
+        displayCanvas.width = canvasWidth
+        displayCanvas.height = canvasHeight
+      }
+
+      renderAsciiToCanvas(
+        dctx,
+        result.text,
+        result.cells,
+        font,
+        lineHeight,
+        canvasWidth,
+        canvasHeight,
+        s.colorMode === 'colored' ? undefined : s.foregroundColor,
+        s.backgroundColor,
+        s.colorMode,
+      )
     }
 
-    // Render ASCII to display canvas
-    renderAsciiToCanvas(
-      dctx,
-      result.text,
-      result.cells,
-      font,
-      lineHeight,
-      canvasWidth,
-      canvasHeight,
-      s.colorMode === 'colored' ? undefined : s.foregroundColor,
-      s.backgroundColor,
-      s.colorMode,
-    )
-
-    // Update current time
     useEditorStore.setState({ currentTime: video.currentTime })
 
-    // FPS counter
     fpsRef.current.frames++
     const now = performance.now()
     if (now - fpsRef.current.lastTime >= 1000) {
@@ -143,17 +219,14 @@ export function AsciiCanvas() {
 
     if (store.playbackState === 'playing') {
       video.play().catch(() => {})
-
       const tick = () => {
         renderFrame()
         rafRef.current = requestAnimationFrame(tick)
       }
       rafRef.current = requestAnimationFrame(tick)
-
       return () => cancelAnimationFrame(rafRef.current)
     } else if (store.playbackState === 'paused') {
       video.pause()
-      // Render one frame when paused (for settings changes)
       renderFrame()
     }
   }, [store.playbackState, renderFrame])
@@ -191,9 +264,7 @@ export function AsciiCanvas() {
     [store.playbackState, renderFrame],
   )
 
-  // Expose seekTo on the video element via a ref callback pattern
   useEffect(() => {
-    // Store seekTo on window for PlaybackBar to access
     ;(window as unknown as Record<string, unknown>).__asciiSeekTo = seekTo
     return () => {
       delete (window as unknown as Record<string, unknown>).__asciiSeekTo
