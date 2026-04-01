@@ -1,11 +1,13 @@
 import type { AsciiCell } from '@/lib/ascii-engine'
 import type { ColorMode } from '@/lib/constants'
+import { measureMonospaceChar } from '@/lib/measure-char'
 
 export function renderAsciiToCanvas(
   ctx: CanvasRenderingContext2D,
   text: string,
   cells: AsciiCell[][],
   font: string,
+  fontSize: number,
   lineHeight: number,
   canvasWidth: number,
   canvasHeight: number,
@@ -27,32 +29,31 @@ export function renderAsciiToCanvas(
     for (let i = 0; i < lines.length; i++) {
       ctx.fillText(lines[i], 0, i * lineHeight)
     }
-  } else if (colorMode === 'monoscale') {
-    // Grayscale — each character shaded by its brightness
-    const charWidth = ctx.measureText('M').width
-
-    for (let row = 0; row < cells.length; row++) {
-      const rowCells = cells[row]
-      for (let col = 0; col < rowCells.length; col++) {
-        const cell = rowCells[col]
-        if (cell.char === ' ') continue
-        const g = cell.brightness | 0
-        ctx.fillStyle = `rgb(${g},${g},${g})`
-        ctx.fillText(cell.char, col * charWidth, row * lineHeight)
-      }
-    }
   } else {
-    // Colored mode — draw character by character with individual colors
-    // Cache monospace character width
-    const charWidth = ctx.measureText('M').width
+    const { charWidth } = measureMonospaceChar(font, fontSize)
 
-    for (let row = 0; row < cells.length; row++) {
-      const rowCells = cells[row]
-      for (let col = 0; col < rowCells.length; col++) {
-        const cell = rowCells[col]
-        if (cell.char === ' ') continue // skip spaces for perf
-        ctx.fillStyle = `rgb(${cell.r | 0},${cell.g | 0},${cell.b | 0})`
-        ctx.fillText(cell.char, col * charWidth, row * lineHeight)
+    if (colorMode === 'monoscale') {
+      // Grayscale — each character shaded by its brightness
+      for (let row = 0; row < cells.length; row++) {
+        const rowCells = cells[row]
+        for (let col = 0; col < rowCells.length; col++) {
+          const cell = rowCells[col]
+          if (cell.char === ' ') continue
+          const g = cell.brightness | 0
+          ctx.fillStyle = `rgb(${g},${g},${g})`
+          ctx.fillText(cell.char, col * charWidth, row * lineHeight)
+        }
+      }
+    } else {
+      // Colored mode — draw character by character with individual colors
+      for (let row = 0; row < cells.length; row++) {
+        const rowCells = cells[row]
+        for (let col = 0; col < rowCells.length; col++) {
+          const cell = rowCells[col]
+          if (cell.char === ' ') continue
+          ctx.fillStyle = `rgb(${cell.r | 0},${cell.g | 0},${cell.b | 0})`
+          ctx.fillText(cell.char, col * charWidth, row * lineHeight)
+        }
       }
     }
   }
