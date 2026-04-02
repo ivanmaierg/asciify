@@ -1,4 +1,4 @@
-import type { AsciiCell } from '@/lib/ascii-engine'
+import type { AsciiCell } from '@asciify/encoder'
 import { createGlyphAtlas, type GlyphAtlas } from '@/lib/glyph-atlas'
 
 const VERTEX_SHADER = `

@@ -1,8 +1,9 @@
 'use client'
 
 import { useEditorStore } from '@/stores/editor-store'
-import { CHARACTER_SETS, FONT_PRESETS } from '@/lib/constants'
-import type { CharacterSetName, ColorMode, DitherMode } from '@/lib/constants'
+import { CHARACTER_SETS } from '@asciify/encoder'
+import type { CharacterSetName, ColorMode, DitherMode } from '@asciify/encoder'
+import { FONT_PRESETS } from '@/lib/constants'
 import type { BitDepth, AudioSampleRate } from '@/lib/audio-processor'
 import { Label } from '@/components/ui/label'
 import { Slider } from '@/components/ui/slider'

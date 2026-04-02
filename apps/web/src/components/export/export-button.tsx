@@ -3,7 +3,7 @@
 import { useCallback, useState } from 'react'
 import { useEditorStore } from '@/stores/editor-store'
 import { extractFrames } from '@/lib/frame-extractor'
-import { deltaEncode } from '@/lib/delta-encoder'
+import { deltaEncode } from '@asciify/encoder'
 import { generateExportHtml, downloadHtml } from '@/lib/html-export'
 import { generateExportAPNG } from '@/lib/export-apng'
 import { generateExportSVG } from '@/lib/export-svg'

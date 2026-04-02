@@ -1,5 +1,5 @@
-import type { ExportLoop, ColorMode } from '@/lib/constants'
-import type { EncodedFrame } from '@/lib/delta-encoder'
+import type { ColorMode, EncodedFrame } from '@asciify/encoder'
+import type { ExportLoop } from '@/lib/constants'
 import { generateCrtCss, generateCrtHtml } from '@/components/preview/crt-overlay'
 
 interface CrtOptions {

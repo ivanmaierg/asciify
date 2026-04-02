@@ -1,6 +1,6 @@
-import type { AsciiFrame } from '@/lib/ascii-engine'
-import type { ExportLoop, ColorMode } from '@/lib/constants'
-import { deltaEncode } from '@/lib/delta-encoder'
+import type { AsciiFrame, ColorMode } from '@asciify/encoder'
+import { deltaEncode } from '@asciify/encoder'
+import type { ExportLoop } from '@/lib/constants'
 import { createGlyphAtlas } from '@/lib/glyph-atlas'
 import { generateCrtCss, generateCrtHtml } from '@/components/preview/crt-overlay'
 

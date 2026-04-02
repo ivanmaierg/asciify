@@ -187,8 +187,8 @@ function convertFrame(pixels, width, height, columns, charset, brightnessThresho
 }
 `
 
-import type { AsciiFrame } from '@/lib/ascii-engine'
-import type { ColorMode, DitherMode } from '@/lib/constants'
+// NOTE: This inlined JS duplicates the conversion algorithm from @asciify/encoder. See D-08 in 02-CONTEXT.md.
+import type { AsciiFrame, ColorMode, DitherMode } from '@asciify/encoder'
 
 let worker: Worker | null = null
 let workerUrl: string | null = null

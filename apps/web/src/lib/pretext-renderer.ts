@@ -1,5 +1,4 @@
-import type { AsciiCell } from '@/lib/ascii-engine'
-import type { ColorMode } from '@/lib/constants'
+import type { AsciiCell, ColorMode } from '@asciify/encoder'
 import { measureMonospaceChar } from '@/lib/measure-char'
 
 export function renderAsciiToCanvas(

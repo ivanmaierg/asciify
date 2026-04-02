@@ -1,5 +1,5 @@
-import type { AsciiFrame } from '@/lib/ascii-engine'
-import type { ColorMode, ExportLoop } from '@/lib/constants'
+import type { AsciiFrame, ColorMode } from '@asciify/encoder'
+import type { ExportLoop } from '@/lib/constants'
 
 export interface ANSIExportOptions {
   frames: AsciiFrame[]

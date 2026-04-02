@@ -1,5 +1,5 @@
-import type { AsciiFrame, AsciiCell } from '@/lib/ascii-engine'
-import type { ColorMode, ExportLoop } from '@/lib/constants'
+import type { AsciiFrame, AsciiCell, ColorMode } from '@asciify/encoder'
+import type { ExportLoop } from '@/lib/constants'
 import { measureMonospaceChar } from '@/lib/measure-char'
 
 export interface SVGExportOptions {

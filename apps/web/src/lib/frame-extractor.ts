@@ -1,7 +1,6 @@
-import type { AsciiFrame } from '@/lib/ascii-engine'
+import type { AsciiFrame, CharacterSetName, ColorMode, DitherMode } from '@asciify/encoder'
+import { CHARACTER_SETS } from '@asciify/encoder'
 import { convertFrameInWorker, terminateWorker } from '@/lib/ascii-worker'
-import { CHARACTER_SETS } from '@/lib/constants'
-import type { CharacterSetName, ColorMode, DitherMode } from '@/lib/constants'
 
 export interface FrameExtractionConfig {
   videoUrl: string

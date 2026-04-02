@@ -2,13 +2,12 @@
 
 import { useRef, useEffect, useCallback, useState } from 'react'
 import { useEditorStore } from '@/stores/editor-store'
-import { convertFrameToAscii } from '@/lib/ascii-engine'
+import { convertFrameToAscii, CHARACTER_SETS } from '@asciify/encoder'
+import type { CharacterSetName } from '@asciify/encoder'
 import { renderAsciiToCanvas } from '@/lib/pretext-renderer'
 import { measureMonospaceChar } from '@/lib/measure-char'
 import { WebGPURenderer } from '@/lib/webgpu-renderer'
 import { connectAudioPreview, disconnectAudioPreview, destroyAudioPreview } from '@/lib/audio-preview'
-import { CHARACTER_SETS } from '@/lib/constants'
-import type { CharacterSetName } from '@/lib/constants'
 
 function getCharset(name: CharacterSetName, custom: string): string {
   if (name === 'custom') return custom || CHARACTER_SETS.standard
@@ -185,18 +184,17 @@ export function AsciiCanvas() {
     const s = useEditorStore.getState()
     const charset = getCharset(s.characterSet, s.customCharacters)
 
-    const result = convertFrameToAscii(
-      imageData,
-      s.columns,
+    const result = convertFrameToAscii(imageData, {
+      columns: s.columns,
       charset,
-      s.brightnessThreshold,
-      s.contrastBoost,
-      s.colorMode,
-      s.gamma,
-      s.edgeDetection,
-      s.ditherMode,
-      s.invertCharset,
-    )
+      brightnessThreshold: s.brightnessThreshold,
+      contrastBoost: s.contrastBoost,
+      colorMode: s.colorMode,
+      gamma: s.gamma,
+      edgeDetection: s.edgeDetection,
+      ditherMode: s.ditherMode,
+      invertCharset: s.invertCharset,
+    })
 
     // Try WebGPU first, fall back to Canvas2D
     if (gpuRef.current) {

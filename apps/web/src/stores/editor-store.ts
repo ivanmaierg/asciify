@@ -3,10 +3,12 @@ import {
   type CharacterSetName,
   type ColorMode,
   type DitherMode,
+  DEFAULT_SETTINGS,
+} from '@asciify/encoder'
+import {
   type ExportFormat,
   type ExportLoop,
   type PlaybackState,
-  DEFAULT_SETTINGS,
 } from '@/lib/constants'
 import type { BitDepth, AudioSampleRate } from '@/lib/audio-processor'
 
