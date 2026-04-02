@@ -22,7 +22,7 @@ Developers and creative coders can install `@asciify/player` on any website to r
 
 ### Active
 
-- [ ] Monorepo migration (pnpm workspaces + Turborepo)
+- [x] Monorepo migration (pnpm workspaces + Turborepo) — Phase 1
 - [ ] `@asciify/encoder` package — pure conversion functions, browser-only, tsup build
 - [ ] `@asciify/player` package — Web Component + ES Module, pretext-powered layout
 - [ ] Player grid mode — classic fixed-grid ASCII art playback
@@ -89,4 +89,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-02 after initialization*
+*Last updated: 2026-04-02 after Phase 1 completion*
