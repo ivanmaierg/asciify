@@ -17,13 +17,13 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Encoder Package
 
-- [ ] **ENC-01**: `@asciify/encoder` package created with tsup build (ESM + CJS + types)
-- [ ] **ENC-02**: `convertFrameToAscii(imageData, options): AsciiFrame` exported as core function
-- [ ] **ENC-03**: All types exported: `AsciiFrame`, `AsciiCell`, `ColorMode`, `DitherMode`
-- [ ] **ENC-04**: Multi-pass pipeline preserved: gamma correction, Sobel edge detection, Floyd-Steinberg dithering, Bayer dithering
-- [ ] **ENC-05**: Brightness threshold and contrast boost parameters supported
-- [ ] **ENC-06**: `deltaEncode` and `rleEncode` compression utilities exported
-- [ ] **ENC-07**: Canonical JSON data format spec defined (`AsciiPlayerData` with version field, frame data, metadata)
+- [x] **ENC-01**: `@asciify/encoder` package created with tsup build (ESM + CJS + types)
+- [x] **ENC-02**: `convertFrameToAscii(imageData, options): AsciiFrame` exported as core function
+- [x] **ENC-03**: All types exported: `AsciiFrame`, `AsciiCell`, `ColorMode`, `DitherMode`
+- [x] **ENC-04**: Multi-pass pipeline preserved: gamma correction, Sobel edge detection, Floyd-Steinberg dithering, Bayer dithering
+- [x] **ENC-05**: Brightness threshold and contrast boost parameters supported
+- [x] **ENC-06**: `deltaEncode` and `rleEncode` compression utilities exported
+- [x] **ENC-07**: Canonical JSON data format spec defined (`AsciiPlayerData` with version field, frame data, metadata)
 - [ ] **ENC-08**: `apps/web` imports encoder from `@asciify/encoder` instead of local `src/lib/ascii-engine.ts`
 
 ### Player Package — Core
@@ -123,13 +123,13 @@ Which phases cover which requirements. Updated during roadmap creation.
 | MONO-03 | Phase 1 | Pending |
 | MONO-04 | Phase 1 | Complete |
 | MONO-05 | Phase 1 | Complete |
-| ENC-01 | Phase 2 | Pending |
-| ENC-02 | Phase 2 | Pending |
-| ENC-03 | Phase 2 | Pending |
-| ENC-04 | Phase 2 | Pending |
-| ENC-05 | Phase 2 | Pending |
-| ENC-06 | Phase 2 | Pending |
-| ENC-07 | Phase 2 | Pending |
+| ENC-01 | Phase 2 | Complete |
+| ENC-02 | Phase 2 | Complete |
+| ENC-03 | Phase 2 | Complete |
+| ENC-04 | Phase 2 | Complete |
+| ENC-05 | Phase 2 | Complete |
+| ENC-06 | Phase 2 | Complete |
+| ENC-07 | Phase 2 | Complete |
 | ENC-08 | Phase 2 | Pending |
 | PLR-01 | Phase 3 | Pending |
 | PLR-02 | Phase 3 | Pending |
