@@ -1,3 +1,9 @@
-// @asciify/encoder — Phase 1 stub
-// Real implementation added in Phase 2
-export {};
+export { convertFrameToAscii } from './ascii-engine'
+export type { AsciiFrame, AsciiCell, ConvertOptions } from './ascii-engine'
+export { deltaEncode } from './delta-encoder'
+export type { DeltaPatch, EncodedFrame, DeltaEncodedFrames } from './delta-encoder'
+export { rleEncode, rleDecode } from './rle'
+export { CHARACTER_SETS, DEFAULT_SETTINGS } from './constants'
+export type { ColorMode, DitherMode, CharacterSetName } from './constants'
+export { createPlayerData, compressPlayerData } from './player-data'
+export type { AsciiPlayerData, AsciiPlayerDataCompact, AsciiPlayerMetadata } from './player-data'
