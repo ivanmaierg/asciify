@@ -34,7 +34,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 Plans:
 - [x] 01-01-PLAN.md — Root workspace config (pnpm-workspace.yaml, turbo.json, tsconfig.base.json, root package.json)
-- [ ] 01-02-PLAN.md — npm to pnpm migration + package shells (encoder, player stubs)
+- [x] 01-02-PLAN.md — npm to pnpm migration + package shells (encoder, player stubs)
 - [ ] 01-03-PLAN.md — Move Next.js app to apps/web/ and verify
 
 ### Phase 2: Encoder Package
