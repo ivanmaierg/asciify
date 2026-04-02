@@ -30,7 +30,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. `pnpm build` from the workspace root builds all packages in correct dependency order via Turborepo
   3. `packages/` directory exists with correct structure; `package-lock.json` is gone, `pnpm-lock.yaml` exists
   4. All packages and apps share `tsconfig.base.json` for consistent TypeScript settings
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] 01-01-PLAN.md — Root workspace config (pnpm-workspace.yaml, turbo.json, tsconfig.base.json, root package.json)
+- [ ] 01-02-PLAN.md — npm to pnpm migration + package shells (encoder, player stubs)
+- [ ] 01-03-PLAN.md — Move Next.js app to apps/web/ and verify
 
 ### Phase 2: Encoder Package
 **Goal**: `@asciify/encoder` is a standalone package installable via npm with all conversion functions and a formally specified canonical JSON data format
