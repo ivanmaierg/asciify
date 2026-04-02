@@ -47,7 +47,12 @@ Plans:
   3. All conversion paths work: monochrome, colored, inverted, monoscale; all dither modes (Floyd-Steinberg, Bayer, Sobel)
   4. `apps/web` imports encoder from `@asciify/encoder` workspace package — local `ascii-engine.ts` is no longer the source of truth
   5. Encoder unit tests pass (`vitest run --project encoder`)
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] 02-01-PLAN.md — Package tooling setup, source extraction, API refactor, canonical format, and build
+- [ ] 02-02-PLAN.md — App import migration from local lib to @asciify/encoder
+- [ ] 02-03-PLAN.md — Encoder unit tests (conversion, compression, format serializers)
 
 ### Phase 3: Player Scaffold + Grid Mode
 **Goal**: `@asciify/player` exists as a buildable package with a working Web Component and ES Module API rendering ASCII art in grid mode
@@ -106,7 +111,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Monorepo Scaffolding | 3/3 | Complete   | 2026-04-02 |
-| 2. Encoder Package | 0/? | Not started | - |
+| 2. Encoder Package | 0/3 | Planning complete | - |
 | 3. Player Scaffold + Grid Mode | 0/? | Not started | - |
 | 4. Player Rendering Modes | 0/? | Not started | - |
 | 5. App Integration | 0/? | Not started | - |
