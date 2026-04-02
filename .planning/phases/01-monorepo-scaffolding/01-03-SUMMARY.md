@@ -64,8 +64,8 @@ completed: 2026-04-02
 
 - **Duration:** ~8 min
 - **Started:** 2026-04-02T16:57:47Z
-- **Completed:** 2026-04-02T17:06:00Z (Tasks 1-2 complete; Task 3 at human-verify checkpoint)
-- **Tasks:** 2/3 complete (Task 3 is checkpoint)
+- **Completed:** 2026-04-02T18:50:29Z (all tasks complete, including Task 3 human-verify approved)
+- **Tasks:** 3/3 complete
 - **Files modified:** 58+
 
 ## Accomplishments
@@ -85,8 +85,9 @@ Each task was committed atomically:
 
 1. **Task 1: Move app files to apps/web/ and create package.json + tsconfig.json** - `4d4ee93` (feat)
 2. **Task 2: Verify typecheck and build pass + fix .gitignore** - `b9b6e36` (chore)
+3. **Task 3: Verify app runs from apps/web/ (human-verify)** - `1274d0c` (checkpoint, approved)
 
-**Task 3 (checkpoint):** Awaiting human verification
+**Plan metadata:** `1274d0c` (docs: complete plan — checkpoint commit)
 
 ## Files Created/Modified
 
@@ -127,7 +128,7 @@ None — this plan is purely structural migration. All app source files are inta
 ## Next Phase Readiness
 
 - 4-package pnpm workspace is operational
-- `pnpm --filter web dev` starts the Next.js app (pending human verification at checkpoint)
+- `pnpm --filter web dev` starts the Next.js app (human-verified: approved)
 - `pnpm --filter web typecheck` and `pnpm --filter web build` confirmed working
 - Phase 2 (encoder extraction) can begin after checkpoint approval
 
@@ -144,4 +145,4 @@ None — this plan is purely structural migration. All app source files are inta
 
 ---
 *Phase: 01-monorepo-scaffolding*
-*Completed: 2026-04-02 (Tasks 1-2; checkpoint Task 3 pending)*
+*Completed: 2026-04-02*
