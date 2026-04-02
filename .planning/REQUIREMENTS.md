@@ -24,7 +24,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **ENC-05**: Brightness threshold and contrast boost parameters supported
 - [x] **ENC-06**: `deltaEncode` and `rleEncode` compression utilities exported
 - [x] **ENC-07**: Canonical JSON data format spec defined (`AsciiPlayerData` with version field, frame data, metadata)
-- [ ] **ENC-08**: `apps/web` imports encoder from `@asciify/encoder` instead of local `src/lib/ascii-engine.ts`
+- [x] **ENC-08**: `apps/web` imports encoder from `@asciify/encoder` instead of local `src/lib/ascii-engine.ts`
 
 ### Player Package — Core
 
@@ -63,7 +63,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Testing
 
-- [ ] **TEST-01**: Unit tests for encoder — all conversion functions, edge cases, color modes, dithering algorithms (vitest)
+- [x] **TEST-01**: Unit tests for encoder — all conversion functions, edge cases, color modes, dithering algorithms (vitest)
 - [ ] **TEST-02**: Unit tests for player — playback logic, mode switching, option parsing (vitest)
 - [ ] **TEST-03**: Integration tests for player — canvas rendering output verification (vitest + canvas mocking)
 - [ ] **TEST-04**: Visual snapshot tests for player — rendered canvas output compared against baseline snapshots
@@ -130,7 +130,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ENC-05 | Phase 2 | Complete |
 | ENC-06 | Phase 2 | Complete |
 | ENC-07 | Phase 2 | Complete |
-| ENC-08 | Phase 2 | Pending |
+| ENC-08 | Phase 2 | Complete |
 | PLR-01 | Phase 3 | Pending |
 | PLR-02 | Phase 3 | Pending |
 | PLR-03 | Phase 3 | Pending |
@@ -154,7 +154,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | APP-01 | Phase 5 | Pending |
 | APP-02 | Phase 5 | Pending |
 | APP-03 | Phase 5 | Pending |
-| TEST-01 | Phase 2 | Pending |
+| TEST-01 | Phase 2 | Complete |
 | TEST-02 | Phase 4 | Pending |
 | TEST-03 | Phase 4 | Pending |
 | TEST-04 | Phase 4 | Pending |

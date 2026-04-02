@@ -13,7 +13,7 @@ This milestone restructures the existing Next.js app into a pnpm + Turborepo mon
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Monorepo Scaffolding** - Restructure repo into pnpm workspaces with Turborepo orchestration (completed 2026-04-02)
-- [ ] **Phase 2: Encoder Package** - Extract @asciify/encoder with canonical JSON data format spec
+- [x] **Phase 2: Encoder Package** - Extract @asciify/encoder with canonical JSON data format spec (completed 2026-04-02)
 - [ ] **Phase 3: Player Scaffold + Grid Mode** - Build @asciify/player Web Component with grid rendering
 - [ ] **Phase 4: Player Rendering Modes** - Add proportional, typewriter, themes, and scroll trigger
 - [ ] **Phase 5: App Integration** - Wire apps/web to consume both packages for preview and export
@@ -51,8 +51,8 @@ Plans:
 
 Plans:
 - [x] 02-01-PLAN.md — Package tooling setup, source extraction, API refactor, canonical format, and build
-- [ ] 02-02-PLAN.md — App import migration from local lib to @asciify/encoder
-- [ ] 02-03-PLAN.md — Encoder unit tests (conversion, compression, format serializers)
+- [x] 02-02-PLAN.md — App import migration from local lib to @asciify/encoder
+- [x] 02-03-PLAN.md — Encoder unit tests (conversion, compression, format serializers)
 
 ### Phase 3: Player Scaffold + Grid Mode
 **Goal**: `@asciify/player` exists as a buildable package with a working Web Component and ES Module API rendering ASCII art in grid mode
@@ -111,7 +111,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Monorepo Scaffolding | 3/3 | Complete   | 2026-04-02 |
-| 2. Encoder Package | 1/3 | In Progress|  |
+| 2. Encoder Package | 3/3 | Complete   | 2026-04-02 |
 | 3. Player Scaffold + Grid Mode | 0/? | Not started | - |
 | 4. Player Rendering Modes | 0/? | Not started | - |
 | 5. App Integration | 0/? | Not started | - |
