@@ -49,3 +49,9 @@ next-env.d.ts
 
 # os
 Thumbs.db
+
+# Turborepo
+.turbo
+
+# Package build artifacts
+packages/*/dist/
