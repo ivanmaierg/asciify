@@ -118,60 +118,60 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| MONO-01 | — | Pending |
-| MONO-02 | — | Pending |
-| MONO-03 | — | Pending |
-| MONO-04 | — | Pending |
-| MONO-05 | — | Pending |
-| ENC-01 | — | Pending |
-| ENC-02 | — | Pending |
-| ENC-03 | — | Pending |
-| ENC-04 | — | Pending |
-| ENC-05 | — | Pending |
-| ENC-06 | — | Pending |
-| ENC-07 | — | Pending |
-| ENC-08 | — | Pending |
-| PLR-01 | — | Pending |
-| PLR-02 | — | Pending |
-| PLR-03 | — | Pending |
-| PLR-04 | — | Pending |
-| PLR-05 | — | Pending |
-| PLR-06 | — | Pending |
-| PLR-07 | — | Pending |
-| PLR-08 | — | Pending |
-| PLR-09 | — | Pending |
-| PLR-10 | — | Pending |
-| PLR-11 | — | Pending |
-| PLR-12 | — | Pending |
-| PLR-13 | — | Pending |
-| MODE-01 | — | Pending |
-| MODE-02 | — | Pending |
-| MODE-03 | — | Pending |
-| MODE-04 | — | Pending |
-| MODE-05 | — | Pending |
-| XTRA-01 | — | Pending |
-| XTRA-02 | — | Pending |
-| APP-01 | — | Pending |
-| APP-02 | — | Pending |
-| APP-03 | — | Pending |
-| TEST-01 | — | Pending |
-| TEST-02 | — | Pending |
-| TEST-03 | — | Pending |
-| TEST-04 | — | Pending |
-| TEST-05 | — | Pending |
-| TEST-06 | — | Pending |
-| PUB-01 | — | Pending |
-| PUB-02 | — | Pending |
-| PUB-03 | — | Pending |
-| PUB-04 | — | Pending |
-| PUB-05 | — | Pending |
-| PUB-06 | — | Pending |
+| MONO-01 | Phase 1 | Pending |
+| MONO-02 | Phase 1 | Pending |
+| MONO-03 | Phase 1 | Pending |
+| MONO-04 | Phase 1 | Pending |
+| MONO-05 | Phase 1 | Pending |
+| ENC-01 | Phase 2 | Pending |
+| ENC-02 | Phase 2 | Pending |
+| ENC-03 | Phase 2 | Pending |
+| ENC-04 | Phase 2 | Pending |
+| ENC-05 | Phase 2 | Pending |
+| ENC-06 | Phase 2 | Pending |
+| ENC-07 | Phase 2 | Pending |
+| ENC-08 | Phase 2 | Pending |
+| PLR-01 | Phase 3 | Pending |
+| PLR-02 | Phase 3 | Pending |
+| PLR-03 | Phase 3 | Pending |
+| PLR-04 | Phase 3 | Pending |
+| PLR-05 | Phase 3 | Pending |
+| PLR-06 | Phase 3 | Pending |
+| PLR-07 | Phase 3 | Pending |
+| PLR-08 | Phase 3 | Pending |
+| PLR-09 | Phase 3 | Pending |
+| PLR-10 | Phase 3 | Pending |
+| PLR-11 | Phase 3 | Pending |
+| PLR-12 | Phase 3 | Pending |
+| PLR-13 | Phase 3 | Pending |
+| MODE-01 | Phase 3 | Pending |
+| MODE-02 | Phase 4 | Pending |
+| MODE-03 | Phase 4 | Pending |
+| MODE-04 | Phase 4 | Pending |
+| MODE-05 | Phase 3 | Pending |
+| XTRA-01 | Phase 4 | Pending |
+| XTRA-02 | Phase 4 | Pending |
+| APP-01 | Phase 5 | Pending |
+| APP-02 | Phase 5 | Pending |
+| APP-03 | Phase 5 | Pending |
+| TEST-01 | Phase 2 | Pending |
+| TEST-02 | Phase 4 | Pending |
+| TEST-03 | Phase 4 | Pending |
+| TEST-04 | Phase 4 | Pending |
+| TEST-05 | Phase 4 | Pending |
+| TEST-06 | Phase 6 | Pending |
+| PUB-01 | Phase 6 | Pending |
+| PUB-02 | Phase 6 | Pending |
+| PUB-03 | Phase 6 | Pending |
+| PUB-04 | Phase 6 | Pending |
+| PUB-05 | Phase 6 | Pending |
+| PUB-06 | Phase 6 | Pending |
 
 **Coverage:**
-- v1 requirements: 47 total
-- Mapped to phases: 0
-- Unmapped: 47 ⚠️
+- v1 requirements: 48 total
+- Mapped to phases: 48
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-04-02*
-*Last updated: 2026-04-02 after initial definition*
+*Last updated: 2026-04-02 — traceability filled after roadmap creation*
