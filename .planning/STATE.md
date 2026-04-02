@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: planning
-stopped_at: Phase 1 context gathered
-last_updated: "2026-04-02T16:16:49.777Z"
-last_activity: 2026-04-02 — Roadmap created
+status: executing
+stopped_at: Completed 01-01-PLAN.md
+last_updated: "2026-04-02T16:52:27.827Z"
+last_activity: 2026-04-02
 progress:
   total_phases: 6
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
+  total_plans: 3
+  completed_plans: 1
   percent: 0
 ---
 
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-02)
 
 **Core value:** Developers and creative coders can install `@asciify/player` on any website to render and animate text on canvas — with a single HTML tag or ES import.
-**Current focus:** Phase 1 — Monorepo Scaffolding
+**Current focus:** Phase 01 — monorepo-scaffolding
 
 ## Current Position
 
-Phase: 1 of 6 (Monorepo Scaffolding)
-Plan: 0 of ? in current phase
-Status: Ready to plan
-Last activity: 2026-04-02 — Roadmap created
+Phase: 01 (monorepo-scaffolding) — EXECUTING
+Plan: 2 of 3
+Status: Ready to execute
+Last activity: 2026-04-02
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -52,6 +52,7 @@ Progress: [░░░░░░░░░░] 0%
 - Trend: —
 
 *Updated after each plan completion*
+| Phase 01 P01 | 49s | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -63,6 +64,7 @@ Recent decisions affecting current work:
 - Init: Reflow mode stays v1 scope (MODE-01 through MODE-05 all mapped); flagged as highest-complexity phase 4 work
 - Init: TEST-06 (CI pipeline) assigned to Phase 6 (Publishing) — it runs the full suite, so it ships last
 - Init: TEST-01 through TEST-05 distributed — encoder tests in Phase 2, player tests in Phase 4
+- [Phase 01]: turbo dev uses --filter=web to only start the Next.js app; tsconfig.base.json uses ES2020 target with apps/web overriding to ES2017
 
 ### Pending Todos
 
@@ -75,6 +77,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-02T16:16:49.774Z
-Stopped at: Phase 1 context gathered
-Resume file: .planning/phases/01-monorepo-scaffolding/01-CONTEXT.md
+Last session: 2026-04-02T16:52:27.825Z
+Stopped at: Completed 01-01-PLAN.md
+Resume file: None

@@ -9,11 +9,11 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Monorepo Infrastructure
 
-- [ ] **MONO-01**: Project restructured into pnpm workspaces with `apps/web` and `packages/*` layout
-- [ ] **MONO-02**: Turborepo configured with build pipeline (`dependsOn: ["^build"]`)
+- [x] **MONO-01**: Project restructured into pnpm workspaces with `apps/web` and `packages/*` layout
+- [x] **MONO-02**: Turborepo configured with build pipeline (`dependsOn: ["^build"]`)
 - [ ] **MONO-03**: Existing Next.js app runs correctly from `apps/web` after migration
-- [ ] **MONO-04**: Shared TypeScript base config (`tsconfig.base.json`) used by all packages and app
-- [ ] **MONO-05**: `npm` replaced with `pnpm` (package-lock.json removed, pnpm-lock.yaml generated)
+- [x] **MONO-04**: Shared TypeScript base config (`tsconfig.base.json`) used by all packages and app
+- [x] **MONO-05**: `npm` replaced with `pnpm` (package-lock.json removed, pnpm-lock.yaml generated)
 
 ### Encoder Package
 
@@ -118,11 +118,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| MONO-01 | Phase 1 | Pending |
-| MONO-02 | Phase 1 | Pending |
+| MONO-01 | Phase 1 | Complete |
+| MONO-02 | Phase 1 | Complete |
 | MONO-03 | Phase 1 | Pending |
-| MONO-04 | Phase 1 | Pending |
-| MONO-05 | Phase 1 | Pending |
+| MONO-04 | Phase 1 | Complete |
+| MONO-05 | Phase 1 | Complete |
 | ENC-01 | Phase 2 | Pending |
 | ENC-02 | Phase 2 | Pending |
 | ENC-03 | Phase 2 | Pending |

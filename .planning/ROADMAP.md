@@ -33,7 +33,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 3 plans
 
 Plans:
-- [ ] 01-01-PLAN.md — Root workspace config (pnpm-workspace.yaml, turbo.json, tsconfig.base.json, root package.json)
+- [x] 01-01-PLAN.md — Root workspace config (pnpm-workspace.yaml, turbo.json, tsconfig.base.json, root package.json)
 - [ ] 01-02-PLAN.md — npm to pnpm migration + package shells (encoder, player stubs)
 - [ ] 01-03-PLAN.md — Move Next.js app to apps/web/ and verify
 
@@ -105,7 +105,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Monorepo Scaffolding | 0/? | Not started | - |
+| 1. Monorepo Scaffolding | 1/3 | In Progress|  |
 | 2. Encoder Package | 0/? | Not started | - |
 | 3. Player Scaffold + Grid Mode | 0/? | Not started | - |
 | 4. Player Rendering Modes | 0/? | Not started | - |
