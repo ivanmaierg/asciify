@@ -21,6 +21,7 @@
   "scripts": {
     "build": "tsup",
     "test": "vitest run",
+    "test:browser": "pnpm build && playwright test",
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist"
   },
@@ -32,6 +33,7 @@
   },
   "devDependencies": {
     "@asciify/encoder": "workspace:*",
+    "@playwright/test": "^1.59.1",
     "happy-dom": "^20.8.9",
     "tsup": "^8.5.1",
     "typescript": "^5",
