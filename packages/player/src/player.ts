@@ -100,7 +100,7 @@ export class AsciiPlayer extends EventTarget {
   }
 
   destroy(): void {
-    this._playback.destroy()
+    this._playback?.destroy()
     const ctx = this._ctx
     ctx.clearRect(0, 0, this._canvas.width, this._canvas.height)
   }
