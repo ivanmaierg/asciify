@@ -1,5 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { renderGridFrame, renderProportionalFrame } from '../src/renderer'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { renderGridFrame, renderProportionalFrame, renderTypewriterFrame } from '../src/renderer'
+import { TypewriterReveal } from '../src/typewriter'
 import type { AsciiFrame } from '@asciify/encoder'
 
 // Mock @chenglou/pretext so tests run without a real canvas measurement environment
@@ -212,5 +213,132 @@ describe('renderProportionalFrame', () => {
     expect(() => renderProportionalFrame(ctx, frame, lineHeight, fgColor, bgColor, 'monochrome')).not.toThrow()
     expect(ctx.fillRect).toHaveBeenCalledTimes(1)
     expect(ctx.fillText).not.toHaveBeenCalled()
+  })
+})
+
+describe('TypewriterReveal', () => {
+  beforeEach(() => {
+    vi.useFakeTimers()
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
+  it('calls onChar callback for each character at charDelay intervals', () => {
+    const reveal = new TypewriterReveal(30)
+    const onChar = vi.fn()
+    const onComplete = vi.fn()
+
+    reveal.reveal(3, onChar, onComplete)
+    // First char fires immediately (step() called synchronously)
+    expect(onChar).toHaveBeenCalledTimes(1)
+    vi.advanceTimersByTime(30)
+    expect(onChar).toHaveBeenCalledTimes(2)
+    vi.advanceTimersByTime(30)
+    expect(onChar).toHaveBeenCalledTimes(3)
+  })
+
+  it('calls onComplete with timestamps array after all characters revealed', () => {
+    const reveal = new TypewriterReveal(30)
+    const onChar = vi.fn()
+    const onComplete = vi.fn()
+
+    reveal.reveal(3, onChar, onComplete)
+    vi.runAllTimers()
+    expect(onComplete).toHaveBeenCalledTimes(1)
+    const timestamps = onComplete.mock.calls[0][0] as number[]
+    expect(timestamps).toHaveLength(3)
+  })
+
+  it('cancel() stops the reveal sequence', () => {
+    const reveal = new TypewriterReveal(30)
+    const onChar = vi.fn()
+    const onComplete = vi.fn()
+
+    reveal.reveal(5, onChar, onComplete)
+    // First char fires
+    expect(onChar).toHaveBeenCalledTimes(1)
+    reveal.cancel()
+    vi.runAllTimers()
+    // No more chars after cancel
+    expect(onChar).toHaveBeenCalledTimes(1)
+    expect(onComplete).not.toHaveBeenCalled()
+  })
+
+  it('timestamps array length equals text length', () => {
+    const reveal = new TypewriterReveal(50)
+    const onComplete = vi.fn()
+
+    reveal.reveal(5, vi.fn(), onComplete)
+    vi.runAllTimers()
+    const timestamps = onComplete.mock.calls[0][0] as number[]
+    expect(timestamps).toHaveLength(5)
+  })
+
+  it('timestamps are monotonically increasing with charDelay spacing', () => {
+    const charDelay = 50
+    const reveal = new TypewriterReveal(charDelay)
+    const onComplete = vi.fn()
+
+    reveal.reveal(4, vi.fn(), onComplete, 100)
+    vi.runAllTimers()
+    const timestamps = onComplete.mock.calls[0][0] as number[]
+    // Timestamps start at startTime and increment by charDelay
+    expect(timestamps[0]).toBe(100)
+    expect(timestamps[1]).toBe(150)
+    expect(timestamps[2]).toBe(200)
+    expect(timestamps[3]).toBe(250)
+  })
+})
+
+describe('renderTypewriterFrame', () => {
+  const charWidth = 8
+  const lineHeight = 16
+  const fgColor = '#00ff00'
+  const bgColor = '#000000'
+
+  let ctx: CanvasRenderingContext2D
+
+  beforeEach(() => {
+    ctx = makeMockCtx(200, 100)
+    vi.clearAllMocks()
+  })
+
+  it('renders only first N characters (partial reveal)', () => {
+    const frame = makeFrame([[
+      { char: 'A', r: 255, g: 0, b: 0, brightness: 0.5 },
+      { char: 'B', r: 0, g: 255, b: 0, brightness: 0.5 },
+      { char: 'C', r: 0, g: 0, b: 255, brightness: 0.5 },
+    ]])
+    // Reveal only 2 chars
+    renderTypewriterFrame(ctx, frame, charWidth, lineHeight, fgColor, bgColor, 'monochrome', 2)
+    const textCalls = (ctx.fillText as ReturnType<typeof vi.fn>).mock.calls.map(c => c[0])
+    expect(textCalls).toContain('A')
+    expect(textCalls).toContain('B')
+    expect(textCalls).not.toContain('C')
+  })
+
+  it('renders cursor character at reveal position when showCursor is true', () => {
+    const frame = makeFrame([[
+      { char: 'A', r: 255, g: 0, b: 0, brightness: 0.5 },
+      { char: 'B', r: 0, g: 255, b: 0, brightness: 0.5 },
+    ]])
+    renderTypewriterFrame(ctx, frame, charWidth, lineHeight, fgColor, bgColor, 'monochrome', 1, true)
+    const textCalls = (ctx.fillText as ReturnType<typeof vi.fn>).mock.calls.map(c => c[0])
+    expect(textCalls).toContain('|')
+  })
+
+  it('renders only background when revealCount is 0', () => {
+    const frame = makeFrame([[
+      { char: 'A', r: 255, g: 0, b: 0, brightness: 0.5 },
+      { char: 'B', r: 0, g: 255, b: 0, brightness: 0.5 },
+    ]])
+    renderTypewriterFrame(ctx, frame, charWidth, lineHeight, fgColor, bgColor, 'monochrome', 0)
+    expect(ctx.fillRect).toHaveBeenCalledTimes(1)
+    // No text chars should be drawn (cursor not shown by default)
+    const textCalls = (ctx.fillText as ReturnType<typeof vi.fn>).mock.calls.map(c => c[0])
+    const nonCursorCalls = textCalls.filter(c => c !== '|')
+    expect(nonCursorCalls).toHaveLength(0)
   })
 })

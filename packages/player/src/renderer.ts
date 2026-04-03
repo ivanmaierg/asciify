@@ -103,3 +103,57 @@ export function renderGridFrame(
     }
   }
 }
+
+/**
+ * Renders a partial ASCII frame in typewriter mode.
+ * Only the first `revealCount` characters (row-major order) are drawn.
+ * Optionally renders a block cursor at the next unrevealed position.
+ * Uses grid-mode fixed charWidth positioning (proportional-typewriter is out of v1 scope).
+ */
+export function renderTypewriterFrame(
+  ctx: CanvasRenderingContext2D,
+  frame: AsciiFrame,
+  charWidth: number,
+  lineHeight: number,
+  fgColor: string,
+  bgColor: string,
+  colorMode: ColorMode,
+  revealCount: number,
+  showCursor?: boolean,
+): void {
+  // Clear background
+  ctx.fillStyle = bgColor
+  ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+
+  ctx.textBaseline = 'top'
+
+  const cells = frame.cells
+  // Flatten to row-major linear index for partial reveal
+  let charIndex = 0
+
+  for (let row = 0; row < cells.length; row++) {
+    const rowCells = cells[row]
+    for (let col = 0; col < rowCells.length; col++) {
+      if (charIndex >= revealCount) {
+        // Draw cursor at this position if requested
+        if (showCursor && charIndex === revealCount) {
+          ctx.fillStyle = fgColor
+          ctx.fillText('|', col * charWidth, row * lineHeight)
+        }
+        return
+      }
+
+      const cell = rowCells[col]
+
+      // Set color based on mode
+      if (colorMode === 'colored' || colorMode === 'monoscale') {
+        ctx.fillStyle = `rgb(${cell.r},${cell.g},${cell.b})`
+      } else {
+        ctx.fillStyle = fgColor
+      }
+
+      ctx.fillText(cell.char, col * charWidth, row * lineHeight)
+      charIndex++
+    }
+  }
+}
