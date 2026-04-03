@@ -7,9 +7,10 @@ import type {
 } from '@asciify/encoder'
 import { rleDecode } from '@asciify/encoder'
 import { prepare } from '@chenglou/pretext'
-import type { AsciiPlayerOptions, LoopMode, PlayerInputData } from './types'
+import type { AsciiPlayerOptions, LoopMode, PlayerInputData, RenderMode } from './types'
 import { PlaybackController } from './playback'
-import { renderGridFrame } from './renderer'
+import { renderGridFrame, renderProportionalFrame, renderTypewriterFrame } from './renderer'
+import { TypewriterReveal } from './typewriter'
 
 /**
  * AsciiPlayer is the core ES Module API for animated ASCII art playback.
@@ -31,6 +32,11 @@ export class AsciiPlayer extends EventTarget {
   private _lineHeight: number
   private _playback!: PlaybackController
   private _options: AsciiPlayerOptions
+  private _mode: RenderMode
+  private _typewriter: TypewriterReveal | null = null
+  private _revealCount: number = 0
+  private _isRevealing: boolean = false
+  private _charTimestamps: Float64Array | null = null
 
   constructor(
     canvas: HTMLCanvasElement,
@@ -45,6 +51,7 @@ export class AsciiPlayer extends EventTarget {
     this._charWidth = 0
     this._lineHeight = 0
     this._options = options
+    this._mode = options.mode ?? 'grid'
 
     // Resolve options with defaults
     this._fps = options.fps ?? data.metadata.fps ?? 24
@@ -57,8 +64,8 @@ export class AsciiPlayer extends EventTarget {
     // Start async init
     this.ready = this._init(data)
 
-    // Autoplay: chain play() after ready resolves
-    if (options.autoplay) {
+    // Autoplay: chain play() after ready resolves (D-08: trigger takes precedence over autoplay)
+    if (options.autoplay && !options.trigger) {
       this.ready.then(() => this.play())
     }
   }
@@ -99,7 +106,12 @@ export class AsciiPlayer extends EventTarget {
     return this._playback.isPlaying
   }
 
+  get charTimestamps(): Float64Array | null {
+    return this._charTimestamps
+  }
+
   destroy(): void {
+    this._typewriter?.cancel()
     this._playback?.destroy()
     const ctx = this._ctx
     ctx.clearRect(0, 0, this._canvas.width, this._canvas.height)
@@ -140,7 +152,20 @@ export class AsciiPlayer extends EventTarget {
       {
         onFrame: (frameIndex: number) => {
           const frame = this._frames[frameIndex]
-          if (frame) {
+          if (!frame) return
+
+          if (this._mode === 'proportional') {
+            renderProportionalFrame(
+              this._ctx,
+              frame,
+              this._lineHeight,
+              this._fgColor,
+              this._bgColor,
+              this._colorMode as Parameters<typeof renderGridFrame>[6],
+            )
+          } else if (this._mode === 'typewriter') {
+            this._startTypewriterReveal(frame, frameIndex)
+          } else {
             renderGridFrame(
               this._ctx,
               frame,
@@ -151,6 +176,7 @@ export class AsciiPlayer extends EventTarget {
               this._colorMode as Parameters<typeof renderGridFrame>[6],
             )
           }
+
           // Dispatch timeupdate event
           const currentTime = this._playback.currentTime
           this.dispatchEvent(
@@ -175,6 +201,58 @@ export class AsciiPlayer extends EventTarget {
           this._options.onEnded?.()
         },
       },
+    )
+  }
+
+  // ──────────────────────────────────────────────────────────
+  // Typewriter integration
+  // ──────────────────────────────────────────────────────────
+
+  private _startTypewriterReveal(frame: AsciiFrame, frameIndex: number): void {
+    // Cancel any active reveal
+    this._typewriter?.cancel()
+    this._isRevealing = true
+    this._playback.pause() // Pause frame advancement during reveal
+
+    const charDelay = this._options.charDelay ?? 30
+    this._typewriter = new TypewriterReveal(charDelay)
+
+    // Count total chars in frame (sum of all row lengths)
+    const totalChars = frame.cells.reduce((sum, row) => sum + row.length, 0)
+
+    this._typewriter.reveal(
+      totalChars,
+      (revealCount: number) => {
+        this._revealCount = revealCount
+        renderTypewriterFrame(
+          this._ctx,
+          frame,
+          this._charWidth,
+          this._lineHeight,
+          this._fgColor,
+          this._bgColor,
+          this._colorMode as Parameters<typeof renderGridFrame>[6],
+          revealCount,
+          true,
+        )
+      },
+      (timestamps: number[]) => {
+        this._isRevealing = false
+        // Store timestamps (MODE-04) — only populated once for first frame
+        if (!this._charTimestamps) {
+          this._charTimestamps = new Float64Array(timestamps)
+          this.dispatchEvent(
+            new CustomEvent('timestamps-ready', {
+              detail: { timestamps: this._charTimestamps },
+              bubbles: true,
+              composed: true,
+            }),
+          )
+        }
+        // Resume frame advancement
+        this._playback.play()
+      },
+      frameIndex * (1000 / this._fps), // startTime offset
     )
   }
 

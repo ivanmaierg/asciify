@@ -12,6 +12,30 @@ vi.mock('@chenglou/pretext', () => ({
   prepare: vi.fn().mockReturnValue({}),
 }))
 
+// Mock renderer so we can spy on which render function is called
+vi.mock('../src/renderer', () => ({
+  renderGridFrame: vi.fn(),
+  renderProportionalFrame: vi.fn(),
+  renderTypewriterFrame: vi.fn(),
+}))
+
+// Mock typewriter so we can control reveal behavior
+vi.mock('../src/typewriter', () => {
+  const mockReveal = vi.fn()
+  const mockCancel = vi.fn()
+  function MockTypewriterReveal(this: { charDelay: number; reveal: typeof mockReveal; cancel: typeof mockCancel }, charDelay: number = 30) {
+    this.charDelay = charDelay
+    this.reveal = mockReveal
+    this.cancel = mockCancel
+  }
+  const TypewriterReveal = vi.fn().mockImplementation(function(this: { charDelay: number; reveal: typeof mockReveal; cancel: typeof mockCancel }, charDelay: number = 30) {
+    this.charDelay = charDelay
+    this.reveal = mockReveal
+    this.cancel = mockCancel
+  })
+  return { TypewriterReveal }
+})
+
 // Mock requestAnimationFrame / cancelAnimationFrame
 let rafCallbacks: Map<number, FrameRequestCallback> = new Map()
 let rafIdCounter = 0
@@ -397,6 +421,192 @@ describe('AsciiPlayer', () => {
       await player.ready
       // If decompression succeeded, player should have correct duration
       expect(player.duration).toBeCloseTo(compactData.metadata.frameCount / compactData.metadata.fps)
+    })
+  })
+
+  describe('mode dispatch', () => {
+    it('default mode is grid when not specified', async () => {
+      const { renderGridFrame } = await import('../src/renderer')
+      const canvas = makeMockCanvas()
+      const data = makeTestData(3)
+      const player = new AsciiPlayer(canvas, data)
+      await player.ready
+      player.play()
+
+      // Trigger a rAF frame
+      const ids = [...rafCallbacks.keys()]
+      const firstId = ids[0]
+      const cb = rafCallbacks.get(firstId)!
+      rafCallbacks.delete(firstId)
+      cb(0) // init tick
+      const ids2 = [...rafCallbacks.keys()]
+      const secondId = ids2[0]
+      const cb2 = rafCallbacks.get(secondId)!
+      rafCallbacks.delete(secondId)
+      cb2(200) // 200ms triggers frame
+
+      expect(renderGridFrame).toHaveBeenCalled()
+    })
+
+    it('mode=grid calls renderGridFrame', async () => {
+      const { renderGridFrame } = await import('../src/renderer')
+      const canvas = makeMockCanvas()
+      const data = makeTestData(3)
+      const player = new AsciiPlayer(canvas, data, { mode: 'grid' })
+      await player.ready
+      player.play()
+
+      const cb1 = [...rafCallbacks.values()][0]!
+      rafCallbacks.clear()
+      cb1(0)
+      const cb2 = [...rafCallbacks.values()][0]!
+      rafCallbacks.clear()
+      cb2(200)
+
+      expect(renderGridFrame).toHaveBeenCalled()
+    })
+
+    it('mode=proportional calls renderProportionalFrame', async () => {
+      const { renderProportionalFrame } = await import('../src/renderer')
+      const canvas = makeMockCanvas()
+      const data = makeTestData(3)
+      const player = new AsciiPlayer(canvas, data, { mode: 'proportional' })
+      await player.ready
+      player.play()
+
+      const cb1 = [...rafCallbacks.values()][0]!
+      rafCallbacks.clear()
+      cb1(0)
+      const cb2 = [...rafCallbacks.values()][0]!
+      rafCallbacks.clear()
+      cb2(200)
+
+      expect(renderProportionalFrame).toHaveBeenCalled()
+    })
+
+    it('mode=typewriter instantiates TypewriterReveal and calls reveal', async () => {
+      const { TypewriterReveal } = await import('../src/typewriter')
+      const canvas = makeMockCanvas()
+      const data = makeTestData(3)
+      const player = new AsciiPlayer(canvas, data, { mode: 'typewriter', charDelay: 50 })
+      await player.ready
+      player.play()
+
+      const cb1 = [...rafCallbacks.values()][0]!
+      rafCallbacks.clear()
+      cb1(0)
+      const cb2 = [...rafCallbacks.values()][0]!
+      rafCallbacks.clear()
+      cb2(200)
+
+      expect(TypewriterReveal).toHaveBeenCalledWith(50)
+    })
+
+    it('mode=typewriter with charDelay passes delay to TypewriterReveal', async () => {
+      const { TypewriterReveal } = await import('../src/typewriter')
+      const canvas = makeMockCanvas()
+      const data = makeTestData(3)
+      const player = new AsciiPlayer(canvas, data, { mode: 'typewriter', charDelay: 100 })
+      await player.ready
+      player.play()
+
+      const cb1 = [...rafCallbacks.values()][0]!
+      rafCallbacks.clear()
+      cb1(0)
+      const cb2 = [...rafCallbacks.values()][0]!
+      rafCallbacks.clear()
+      cb2(200)
+
+      expect(TypewriterReveal).toHaveBeenCalledWith(100)
+    })
+
+    it('charTimestamps is null initially', async () => {
+      const canvas = makeMockCanvas()
+      const data = makeTestData(3)
+      const player = new AsciiPlayer(canvas, data)
+      await player.ready
+      expect(player.charTimestamps).toBeNull()
+    })
+
+    it('charTimestamps is populated after typewriter reveal completes', async () => {
+      const { TypewriterReveal } = await import('../src/typewriter')
+      // Make reveal call onComplete immediately with mock timestamps
+      const mockRevealImpl = vi.fn((
+        _totalChars: number,
+        onChar: (revealCount: number, charIndex: number, timestamp: number) => void,
+        onComplete: (timestamps: number[]) => void,
+      ) => {
+        // Simulate immediate single-char reveal + complete
+        onChar(1, 0, 0)
+        onComplete([0, 30, 60])
+      });
+      (TypewriterReveal as ReturnType<typeof vi.fn>).mockImplementation(function(this: { charDelay: number; reveal: unknown; cancel: unknown }, charDelay: number = 30) {
+        this.charDelay = charDelay
+        this.reveal = mockRevealImpl
+        this.cancel = vi.fn()
+      })
+
+      const canvas = makeMockCanvas()
+      const data = makeTestData(3)
+      const player = new AsciiPlayer(canvas, data, { mode: 'typewriter' })
+      await player.ready
+      player.play()
+
+      const cb1 = [...rafCallbacks.values()][0]!
+      rafCallbacks.clear()
+      cb1(0)
+      const cb2 = [...rafCallbacks.values()][0]!
+      rafCallbacks.clear()
+      cb2(200)
+
+      expect(player.charTimestamps).toBeInstanceOf(Float64Array)
+      expect(player.charTimestamps?.length).toBe(3)
+    })
+
+    it('dispatches timestamps-ready CustomEvent when charTimestamps populated', async () => {
+      const { TypewriterReveal } = await import('../src/typewriter')
+      const mockRevealImpl = vi.fn((
+        _totalChars: number,
+        onChar: (revealCount: number, charIndex: number, timestamp: number) => void,
+        onComplete: (timestamps: number[]) => void,
+      ) => {
+        onChar(1, 0, 0)
+        onComplete([0, 30, 60])
+      });
+      (TypewriterReveal as ReturnType<typeof vi.fn>).mockImplementation(function(this: { charDelay: number; reveal: unknown; cancel: unknown }, charDelay: number = 30) {
+        this.charDelay = charDelay
+        this.reveal = mockRevealImpl
+        this.cancel = vi.fn()
+      })
+
+      const canvas = makeMockCanvas()
+      const data = makeTestData(3)
+      const player = new AsciiPlayer(canvas, data, { mode: 'typewriter' })
+      await player.ready
+
+      const timestampsReadyFired = vi.fn()
+      player.addEventListener('timestamps-ready', timestampsReadyFired)
+
+      player.play()
+      const cb1 = [...rafCallbacks.values()][0]!
+      rafCallbacks.clear()
+      cb1(0)
+      const cb2 = [...rafCallbacks.values()][0]!
+      rafCallbacks.clear()
+      cb2(200)
+
+      expect(timestampsReadyFired).toHaveBeenCalled()
+    })
+
+    it('autoplay with trigger set does NOT autoplay (D-08)', async () => {
+      const canvas = makeMockCanvas()
+      const data = makeTestData(3)
+      const player = new AsciiPlayer(canvas, data, { autoplay: true, trigger: 'scroll' })
+      await player.ready
+      await Promise.resolve() // allow microtasks
+
+      // rAF should not be called since trigger prevents autoplay
+      expect(mockRaf).not.toHaveBeenCalled()
     })
   })
 })
