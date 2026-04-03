@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 04-01-PLAN.md
-last_updated: "2026-04-03T20:09:59.651Z"
+stopped_at: Completed 04-02-PLAN.md
+last_updated: "2026-04-03T20:16:20.482Z"
 last_activity: 2026-04-03
 progress:
   total_phases: 6
   completed_phases: 3
   total_plans: 13
-  completed_plans: 11
+  completed_plans: 12
   percent: 17
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-02)
 ## Current Position
 
 Phase: 04 (player-rendering-modes) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Ready to execute
 Last activity: 2026-04-03
 
@@ -62,6 +62,7 @@ Progress: [█░░░░░░░░░] 17%
 | Phase 03-player-scaffold-grid-mode P02 | 180 | 2 tasks | 7 files |
 | Phase 03-player-scaffold-grid-mode P04 | 525729 | 2 tasks | 2 files |
 | Phase 04 P01 | 161 | 2 tasks | 5 files |
+| Phase 04 P02 | 267 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -88,6 +89,8 @@ Recent decisions affecting current work:
 - [Phase 04]: renderProportionalFrame uses pretext widths[] prefix sums for x-positioning (D-01), not ctx.measureText()
 - [Phase 04]: TypewriterReveal timestamps use startTime + i*charDelay formula for audio sync alignment (MODE-04)
 - [Phase 04]: renderTypewriterFrame uses grid-mode fixed charWidth; proportional-typewriter combination deferred from v1 scope
+- [Phase 04]: _setupTrigger calls element's own play()/pause() public methods so vi.spyOn works in tests
+- [Phase 04]: charTimestamps only populated on first frame's reveal (guarded by !this._charTimestamps check)
 
 ### Pending Todos
 
@@ -100,6 +103,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-03T20:09:59.648Z
-Stopped at: Completed 04-01-PLAN.md
+Last session: 2026-04-03T20:16:20.480Z
+Stopped at: Completed 04-02-PLAN.md
 Resume file: None

@@ -88,7 +88,7 @@ Plans:
 
 Plans:
 - [x] 04-01-PLAN.md — Types, proportional renderer, typewriter reveal engine
-- [ ] 04-02-PLAN.md — Wire modes into AsciiPlayer + Web Component triggers
+- [x] 04-02-PLAN.md — Wire modes into AsciiPlayer + Web Component triggers
 - [ ] 04-03-PLAN.md — Snapshot, integration, and Playwright browser tests
 
 ### Phase 5: App Integration
@@ -124,6 +124,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 1. Monorepo Scaffolding | 3/3 | Complete   | 2026-04-02 |
 | 2. Encoder Package | 3/3 | Complete   | 2026-04-02 |
 | 3. Player Scaffold + Grid Mode | 4/4 | Complete   | 2026-04-03 |
-| 4. Player Rendering Modes | 1/3 | In Progress|  |
+| 4. Player Rendering Modes | 2/3 | In Progress|  |
 | 5. App Integration | 0/? | Not started | - |
 | 6. Publishing | 0/? | Not started | - |
