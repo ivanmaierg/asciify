@@ -16,7 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: Encoder Package** - Extract @asciify/encoder with canonical JSON data format spec (completed 2026-04-02)
 - [x] **Phase 3: Player Scaffold + Grid Mode** - Build @asciify/player Web Component with grid rendering (completed 2026-04-03)
 - [x] **Phase 4: Player Rendering Modes** - Add proportional, typewriter, themes, and scroll trigger (completed 2026-04-03)
-- [ ] **Phase 5: App Integration** - Wire apps/web to consume both packages for preview and export
+- [x] **Phase 5: App Integration** - Wire apps/web to consume both packages for preview and export (completed 2026-04-03)
 - [ ] **Phase 6: Publishing** - Publish both packages to npm with CI, demo site, and CDN build
 
 ## Phase Details
@@ -104,7 +104,7 @@ Plans:
 
 Plans:
 - [x] 05-01-PLAN.md — Export renderGridFrame from player, add workspace dep, swap live preview renderer
-- [ ] 05-02-PLAN.md — Refactor HTML export to embed player IIFE bundle
+- [x] 05-02-PLAN.md — Refactor HTML export to embed player IIFE bundle
 
 ### Phase 6: Publishing
 **Goal**: Both packages are published to npm under @asciify scope, a demo site is live, and CI runs the full test suite on every PR
@@ -129,5 +129,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 2. Encoder Package | 3/3 | Complete   | 2026-04-02 |
 | 3. Player Scaffold + Grid Mode | 4/4 | Complete   | 2026-04-03 |
 | 4. Player Rendering Modes | 3/3 | Complete   | 2026-04-03 |
-| 5. App Integration | 1/2 | In Progress|  |
+| 5. App Integration | 2/2 | Complete   | 2026-04-03 |
 | 6. Publishing | 0/? | Not started | - |

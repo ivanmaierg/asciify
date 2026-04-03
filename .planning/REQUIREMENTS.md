@@ -58,7 +58,7 @@ Requirements for initial release. Each maps to roadmap phases.
 ### App Integration
 
 - [x] **APP-01**: `apps/web` live preview uses `@asciify/player` for canvas rendering
-- [ ] **APP-02**: HTML export refactored to embed compiled `@asciify/player` bundle instead of separate inline runtime
+- [x] **APP-02**: HTML export refactored to embed compiled `@asciify/player` bundle instead of separate inline runtime
 - [x] **APP-03**: All existing export formats (HTML, WebGPU, APNG, SVG, ANSI) continue working after migration
 
 ### Testing
@@ -152,7 +152,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | XTRA-01 | Phase 4 | Complete |
 | XTRA-02 | Phase 4 | Complete |
 | APP-01 | Phase 5 | Complete |
-| APP-02 | Phase 5 | Pending |
+| APP-02 | Phase 5 | Complete |
 | APP-03 | Phase 5 | Complete |
 | TEST-01 | Phase 2 | Complete |
 | TEST-02 | Phase 4 | Complete |
