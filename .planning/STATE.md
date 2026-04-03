@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: verifying
-stopped_at: Completed 04-03-PLAN.md
-last_updated: "2026-04-03T20:26:24.400Z"
+status: executing
+stopped_at: Completed 05-01-PLAN.md
+last_updated: "2026-04-03T20:54:13.176Z"
 last_activity: 2026-04-03
 progress:
   total_phases: 6
   completed_phases: 4
-  total_plans: 13
-  completed_plans: 13
+  total_plans: 15
+  completed_plans: 14
   percent: 17
 ---
 
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-02)
 
 **Core value:** Developers and creative coders can install `@asciify/player` on any website to render and animate text on canvas — with a single HTML tag or ES import.
-**Current focus:** Phase 04 — player-rendering-modes
+**Current focus:** Phase 05 — app-integration
 
 ## Current Position
 
-Phase: 5
-Plan: Not started
-Status: Phase complete — ready for verification
+Phase: 05 (app-integration) — EXECUTING
+Plan: 2 of 2
+Status: Ready to execute
 Last activity: 2026-04-03
 
 Progress: [█░░░░░░░░░] 17%
@@ -64,6 +64,7 @@ Progress: [█░░░░░░░░░] 17%
 | Phase 04 P01 | 161 | 2 tasks | 5 files |
 | Phase 04 P02 | 267 | 2 tasks | 4 files |
 | Phase 04 P03 | 251 | 2 tasks | 5 files |
+| Phase 05-app-integration P01 | 135 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -95,6 +96,8 @@ Recent decisions affecting current work:
 - [Phase 04]: makeRecordingCtx records draw calls as string[] so toMatchInlineSnapshot shows readable canvas operation diffs
 - [Phase 04]: Playwright chromium_headless_shell-1217 installed at test time to match @playwright/test@1.59.1 version
 - [Phase 04]: fileURLToPath(import.meta.url) used for __dirname compat in Playwright specs since player package has type:module
+- [Phase 05-app-integration]: Dynamic import @asciify/player in useEffect to avoid SSR HTMLElement errors; store renderGridFrame in ref for synchronous rAF loop access
+- [Phase 05-app-integration]: IIFE bundle copy-player-bundle script added to web build for Plan 02 HTML export
 
 ### Pending Todos
 
@@ -107,6 +110,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-03T20:22:53.038Z
-Stopped at: Completed 04-03-PLAN.md
+Last session: 2026-04-03T20:54:13.173Z
+Stopped at: Completed 05-01-PLAN.md
 Resume file: None
