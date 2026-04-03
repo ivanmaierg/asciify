@@ -98,7 +98,7 @@ export function ExportButton() {
           )
           const canvasHeight = extracted.rows * lineHeight
 
-          const html = generateExportHtml({
+          const html = await generateExportHtml({
             frames: encodedFrames,
             fps: s.exportFps,
             loop: s.exportLoop,
@@ -113,6 +113,7 @@ export function ExportButton() {
             showControls: s.exportShowControls,
             colorMode: s.colorMode,
             audioDataUrl,
+            columns: s.columns,
             crt: {
               enabled: s.crtEnabled,
               vignette: s.crtVignette,
