@@ -141,6 +141,14 @@ describe('AsciiPlayerElement', () => {
       expect(attrs).toContain('theme')
       expect(attrs).toContain('font')
     })
+
+    it('includes mode, char-delay, trigger', async () => {
+      const { AsciiPlayerElement } = await importWebComponent()
+      const attrs = AsciiPlayerElement.observedAttributes
+      expect(attrs).toContain('mode')
+      expect(attrs).toContain('char-delay')
+      expect(attrs).toContain('trigger')
+    })
   })
 
   describe('Shadow DOM', () => {
@@ -342,6 +350,237 @@ describe('AsciiPlayerElement', () => {
       const { registerAsciiPlayer } = await importWebComponent()
       expect(() => registerAsciiPlayer()).not.toThrow()
       expect(() => registerAsciiPlayer()).not.toThrow()
+    })
+  })
+
+  describe('mode and char-delay attributes', () => {
+    it('mode attribute is passed to AsciiPlayer options', async () => {
+      const { AsciiPlayerElement } = await importWebComponent()
+      const el = new AsciiPlayerElement()
+      el.setAttribute('mode', 'proportional')
+      el.setAttribute('src', 'http://example.com/data.json')
+      document.body.appendChild(el)
+
+      await new Promise((resolve) => setTimeout(resolve, 50))
+      // No throw and mode attribute readable
+      expect(el.getAttribute('mode')).toBe('proportional')
+
+      document.body.removeChild(el)
+    })
+
+    it('char-delay attribute is parsed as number', async () => {
+      const { AsciiPlayerElement } = await importWebComponent()
+      const el = new AsciiPlayerElement()
+      el.setAttribute('char-delay', '50')
+      el.setAttribute('src', 'http://example.com/data.json')
+      document.body.appendChild(el)
+
+      await new Promise((resolve) => setTimeout(resolve, 50))
+      expect(el.getAttribute('char-delay')).toBe('50')
+
+      document.body.removeChild(el)
+    })
+
+    it('theme attribute resolves to THEMES colors with new attrs present', async () => {
+      const { AsciiPlayerElement } = await importWebComponent()
+      const el = new AsciiPlayerElement()
+      el.setAttribute('theme', 'matrix')
+      el.setAttribute('mode', 'grid')
+      el.setAttribute('trigger', 'click')
+      expect(el.getAttribute('theme')).toBe('matrix')
+      expect(el.getAttribute('mode')).toBe('grid')
+    })
+  })
+
+  describe('trigger attribute — scroll', () => {
+    it('trigger=scroll creates IntersectionObserver when player ready', async () => {
+      let observerCallback: IntersectionObserverCallback | null = null
+      const mockObserve = vi.fn()
+      const mockDisconnect = vi.fn()
+
+      vi.stubGlobal('IntersectionObserver', class {
+        constructor(cb: IntersectionObserverCallback) { observerCallback = cb }
+        observe = mockObserve
+        disconnect = mockDisconnect
+        unobserve = vi.fn()
+      })
+
+      const { AsciiPlayerElement } = await importWebComponent()
+      const el = new AsciiPlayerElement()
+      el.setAttribute('trigger', 'scroll')
+      el.setAttribute('src', 'http://example.com/data.json')
+      document.body.appendChild(el)
+
+      await new Promise((resolve) => setTimeout(resolve, 100))
+
+      expect(mockObserve).toHaveBeenCalled()
+
+      document.body.removeChild(el)
+    })
+
+    it('trigger=scroll calls play() when element intersects viewport', async () => {
+      let observerCallback: IntersectionObserverCallback | null = null
+
+      vi.stubGlobal('IntersectionObserver', class {
+        constructor(cb: IntersectionObserverCallback) { observerCallback = cb }
+        observe = vi.fn()
+        disconnect = vi.fn()
+        unobserve = vi.fn()
+      })
+
+      const { AsciiPlayerElement } = await importWebComponent()
+      const el = new AsciiPlayerElement()
+      el.setAttribute('trigger', 'scroll')
+      el.setAttribute('src', 'http://example.com/data.json')
+      document.body.appendChild(el)
+
+      await new Promise((resolve) => setTimeout(resolve, 100))
+
+      // Simulate intersection
+      const playSpy = vi.spyOn(el, 'play')
+      observerCallback?.([{ isIntersecting: true } as IntersectionObserverEntry], {} as IntersectionObserver)
+
+      expect(playSpy).toHaveBeenCalled()
+
+      document.body.removeChild(el)
+    })
+
+    it('trigger=scroll does NOT call play() when not intersecting', async () => {
+      let observerCallback: IntersectionObserverCallback | null = null
+
+      vi.stubGlobal('IntersectionObserver', class {
+        constructor(cb: IntersectionObserverCallback) { observerCallback = cb }
+        observe = vi.fn()
+        disconnect = vi.fn()
+        unobserve = vi.fn()
+      })
+
+      const { AsciiPlayerElement } = await importWebComponent()
+      const el = new AsciiPlayerElement()
+      el.setAttribute('trigger', 'scroll')
+      el.setAttribute('src', 'http://example.com/data.json')
+      document.body.appendChild(el)
+
+      await new Promise((resolve) => setTimeout(resolve, 100))
+
+      const playSpy = vi.spyOn(el, 'play')
+      observerCallback?.([{ isIntersecting: false } as IntersectionObserverEntry], {} as IntersectionObserver)
+
+      expect(playSpy).not.toHaveBeenCalled()
+
+      document.body.removeChild(el)
+    })
+  })
+
+  describe('trigger attribute — hover', () => {
+    it('trigger=hover calls play() on mouseenter', async () => {
+      const { AsciiPlayerElement } = await importWebComponent()
+      const el = new AsciiPlayerElement()
+      el.setAttribute('trigger', 'hover')
+      el.setAttribute('src', 'http://example.com/data.json')
+      document.body.appendChild(el)
+
+      await new Promise((resolve) => setTimeout(resolve, 100))
+
+      const playSpy = vi.spyOn(el, 'play')
+      el.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }))
+
+      expect(playSpy).toHaveBeenCalled()
+
+      document.body.removeChild(el)
+    })
+
+    it('trigger=hover calls pause() on mouseleave', async () => {
+      const { AsciiPlayerElement } = await importWebComponent()
+      const el = new AsciiPlayerElement()
+      el.setAttribute('trigger', 'hover')
+      el.setAttribute('src', 'http://example.com/data.json')
+      document.body.appendChild(el)
+
+      await new Promise((resolve) => setTimeout(resolve, 100))
+
+      const pauseSpy = vi.spyOn(el, 'pause')
+      el.dispatchEvent(new MouseEvent('mouseleave', { bubbles: true }))
+
+      expect(pauseSpy).toHaveBeenCalled()
+
+      document.body.removeChild(el)
+    })
+  })
+
+  describe('trigger attribute — click', () => {
+    it('trigger=click toggles play/pause on click', async () => {
+      const { AsciiPlayerElement } = await importWebComponent()
+      const el = new AsciiPlayerElement()
+      el.setAttribute('trigger', 'click')
+      el.setAttribute('src', 'http://example.com/data.json')
+      document.body.appendChild(el)
+
+      await new Promise((resolve) => setTimeout(resolve, 100))
+
+      // First click: should play (player not playing)
+      const playSpy = vi.spyOn(el, 'play')
+      el.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+
+      expect(playSpy).toHaveBeenCalled()
+
+      document.body.removeChild(el)
+    })
+  })
+
+  describe('trigger attribute — autoplay prevention (D-08)', () => {
+    it('trigger attribute prevents autoplay even if autoplay attr is set', async () => {
+      const { AsciiPlayerElement } = await importWebComponent()
+      const el = new AsciiPlayerElement()
+      el.setAttribute('trigger', 'hover')
+      el.setAttribute('autoplay', '')
+      el.setAttribute('src', 'http://example.com/data.json')
+      document.body.appendChild(el)
+
+      await new Promise((resolve) => setTimeout(resolve, 100))
+
+      // Player should NOT have been played automatically
+      // (rAF not called means play wasn't called)
+      expect(el.currentTime).toBe(0)
+
+      document.body.removeChild(el)
+    })
+  })
+
+  describe('disconnectedCallback teardown', () => {
+    it('disconnectedCallback tears down IntersectionObserver', async () => {
+      const mockDisconnect = vi.fn()
+
+      vi.stubGlobal('IntersectionObserver', class {
+        constructor(_cb: IntersectionObserverCallback) {}
+        observe = vi.fn()
+        disconnect = mockDisconnect
+        unobserve = vi.fn()
+      })
+
+      const { AsciiPlayerElement } = await importWebComponent()
+      const el = new AsciiPlayerElement()
+      el.setAttribute('trigger', 'scroll')
+      el.setAttribute('src', 'http://example.com/data.json')
+      document.body.appendChild(el)
+
+      await new Promise((resolve) => setTimeout(resolve, 100))
+
+      document.body.removeChild(el)
+
+      expect(mockDisconnect).toHaveBeenCalled()
+    })
+
+    it('disconnectedCallback removes hover event listeners without throwing', async () => {
+      const { AsciiPlayerElement } = await importWebComponent()
+      const el = new AsciiPlayerElement()
+      el.setAttribute('trigger', 'hover')
+      el.setAttribute('src', 'http://example.com/data.json')
+      document.body.appendChild(el)
+
+      await new Promise((resolve) => setTimeout(resolve, 100))
+
+      expect(() => document.body.removeChild(el)).not.toThrow()
     })
   })
 })

@@ -1,5 +1,5 @@
 import { AsciiPlayer } from './player'
-import type { AsciiPlayerOptions, LoopMode, PlayerInputData } from './types'
+import type { AsciiPlayerOptions, LoopMode, PlayerInputData, RenderMode, TriggerMode } from './types'
 import { THEMES } from './types'
 
 // ──────────────────────────────────────────────────────────
@@ -29,6 +29,9 @@ export class AsciiPlayerElement extends HTMLElement {
       'bg-color',
       'theme',
       'font',
+      'mode',
+      'char-delay',
+      'trigger',
     ]
   }
 
@@ -37,6 +40,10 @@ export class AsciiPlayerElement extends HTMLElement {
   private _player: AsciiPlayer | null = null
   private _pendingData: PlayerInputData | null = null
   private _controlsDiv: HTMLDivElement | null = null
+  private _intersectionObserver: IntersectionObserver | null = null
+  private _boundMouseEnter: (() => void) | null = null
+  private _boundMouseLeave: (() => void) | null = null
+  private _boundClick: (() => void) | null = null
 
   constructor() {
     super()
@@ -115,6 +122,7 @@ export class AsciiPlayerElement extends HTMLElement {
   }
 
   disconnectedCallback(): void {
+    this._teardownTrigger()
     this._player?.destroy()
     this._player = null
   }
@@ -137,6 +145,16 @@ export class AsciiPlayerElement extends HTMLElement {
         } else {
           this._removeControls()
         }
+      }
+      return
+    }
+
+    if (name === 'trigger') {
+      this._teardownTrigger()
+      if (newVal && this._player) {
+        this._player.ready.then(() => {
+          if (this._player) this._setupTrigger(newVal)
+        })
       }
       return
     }
@@ -197,6 +215,8 @@ export class AsciiPlayerElement extends HTMLElement {
 
     // Build options
     const fpsAttr = this.getAttribute('fps')
+    const charDelayAttr = this.getAttribute('char-delay')
+    const triggerAttr = this.getAttribute('trigger') as TriggerMode | null
     const options: AsciiPlayerOptions = {
       fps: fpsAttr ? Number(fpsAttr) : (meta as { fps?: number }).fps ?? 24,
       loop: parseLoop(this.getAttribute('loop')),
@@ -204,10 +224,20 @@ export class AsciiPlayerElement extends HTMLElement {
       font: this.getAttribute('font') ?? '14px monospace',
       fgColor,
       bgColor,
+      mode: (this.getAttribute('mode') as RenderMode) ?? 'grid',
+      charDelay: charDelayAttr ? Number(charDelayAttr) : undefined,
+      trigger: triggerAttr ?? undefined,
     }
 
     // Create player
     this._player = new AsciiPlayer(this._canvas, data, options)
+
+    // Set up trigger if present (after player is ready)
+    if (triggerAttr) {
+      this._player.ready.then(() => {
+        if (this._player) this._setupTrigger(triggerAttr)
+      })
+    }
 
     // Forward events from player to element (composed: true to pierce Shadow DOM)
     this._player.addEventListener('timeupdate', (e) => {
@@ -235,6 +265,66 @@ export class AsciiPlayerElement extends HTMLElement {
       this._player.ready.then(() => {
         if (this._player) this._renderControls()
       })
+    }
+  }
+
+  // ──────────────────────────────────────────────────────────
+  // Internal: trigger setup / teardown
+  // ──────────────────────────────────────────────────────────
+
+  private _setupTrigger(trigger: string): void {
+    if (trigger === 'scroll') {
+      this._intersectionObserver = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (entry.isIntersecting) {
+              this.seekTo(0)
+              this.play()
+            }
+          }
+        },
+        { threshold: 0.5 },
+      )
+      this._intersectionObserver.observe(this)
+    } else if (trigger === 'hover') {
+      this._boundMouseEnter = () => {
+        this.seekTo(0)
+        this.play()
+      }
+      this._boundMouseLeave = () => {
+        this.pause()
+      }
+      this.addEventListener('mouseenter', this._boundMouseEnter)
+      this.addEventListener('mouseleave', this._boundMouseLeave)
+    } else if (trigger === 'click') {
+      this._boundClick = () => {
+        if (this._player?.isPlaying) {
+          this.pause()
+        } else {
+          this.seekTo(0)
+          this.play()
+        }
+      }
+      this.addEventListener('click', this._boundClick)
+    }
+  }
+
+  private _teardownTrigger(): void {
+    if (this._intersectionObserver) {
+      this._intersectionObserver.disconnect()
+      this._intersectionObserver = null
+    }
+    if (this._boundMouseEnter) {
+      this.removeEventListener('mouseenter', this._boundMouseEnter)
+      this._boundMouseEnter = null
+    }
+    if (this._boundMouseLeave) {
+      this.removeEventListener('mouseleave', this._boundMouseLeave)
+      this._boundMouseLeave = null
+    }
+    if (this._boundClick) {
+      this.removeEventListener('click', this._boundClick)
+      this._boundClick = null
     }
   }
 
