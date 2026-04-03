@@ -2,7 +2,9 @@ import type { AsciiPlayerData, AsciiPlayerDataCompact } from '@asciify/encoder'
 
 export type LoopMode = 'forever' | 'once' | number
 
-export type RenderMode = 'grid'  // Phase 4 adds 'proportional' | 'typewriter'
+export type RenderMode = 'grid' | 'proportional' | 'typewriter'
+
+export type TriggerMode = 'scroll' | 'hover' | 'click'
 
 export interface AsciiPlayerOptions {
   fps?: number
@@ -12,6 +14,8 @@ export interface AsciiPlayerOptions {
   fgColor?: string           // foreground color, default '#00ff00'
   bgColor?: string           // background color, default '#000000'
   mode?: RenderMode
+  charDelay?: number         // ms per character in typewriter mode (default 30) — per D-04
+  trigger?: TriggerMode      // playback trigger — per D-07
   onTimeUpdate?: (currentTime: number) => void
   onEnded?: () => void
 }
