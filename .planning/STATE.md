@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: verifying
-stopped_at: Phase 6 context gathered
-last_updated: "2026-04-03T21:18:27.227Z"
+status: executing
+stopped_at: Completed 06-01-PLAN.md
+last_updated: "2026-04-03T21:36:50.081Z"
 last_activity: 2026-04-03
 progress:
-  total_phases: 6
+  total_phases: 7
   completed_phases: 5
-  total_plans: 15
-  completed_plans: 15
+  total_plans: 17
+  completed_plans: 16
   percent: 17
 ---
 
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-02)
 
 **Core value:** Developers and creative coders can install `@asciify/player` on any website to render and animate text on canvas — with a single HTML tag or ES import.
-**Current focus:** Phase 05 — app-integration
+**Current focus:** Phase 06 — publishing
 
 ## Current Position
 
-Phase: 6
-Plan: Not started
-Status: Phase complete — ready for verification
+Phase: 06 (publishing) — EXECUTING
+Plan: 2 of 2
+Status: Ready to execute
 Last activity: 2026-04-03
 
 Progress: [█░░░░░░░░░] 17%
@@ -66,6 +66,7 @@ Progress: [█░░░░░░░░░] 17%
 | Phase 04 P03 | 251 | 2 tasks | 5 files |
 | Phase 05-app-integration P01 | 135 | 2 tasks | 4 files |
 | Phase 05-app-integration P02 | 480 | 2 tasks | 2 files |
+| Phase 06-publishing P01 | 480 | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -100,6 +101,8 @@ Recent decisions affecting current work:
 - [Phase 05-app-integration]: Dynamic import @asciify/player in useEffect to avoid SSR HTMLElement errors; store renderGridFrame in ref for synchronous rAF loop access
 - [Phase 05-app-integration]: IIFE bundle copy-player-bundle script added to web build for Plan 02 HTML export
 - [Phase 05-02]: Player API uses isPlaying (not paused) — controls bootstrap adapted; player.ready.then() wraps event wiring; columns added to ExportOptions for AsciiPlayerDataCompact metadata
+- [Phase 06-publishing]: Demo store is standalone (separate from editor-store) to avoid coupling demo to editor state
+- [Phase 06-publishing]: Demo components follow same patterns as editor: base-ui Slider onValueChange provides number | readonly number[], sliderVal helper handles both
 
 ### Pending Todos
 
@@ -112,6 +115,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-03T21:18:27.224Z
-Stopped at: Phase 6 context gathered
-Resume file: .planning/phases/06-publishing/06-CONTEXT.md
+Last session: 2026-04-03T21:36:50.078Z
+Stopped at: Completed 06-01-PLAN.md
+Resume file: None

@@ -76,7 +76,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [ ] **PUB-02**: Both packages pass `publint` validation before publish
 - [ ] **PUB-03**: Changesets configured for versioning and changelog generation
 - [ ] **PUB-04**: Both packages published to npm with correct `exports` map (including `types` condition)
-- [ ] **PUB-05**: Demo site / playground showing all player modes with interactive examples
+- [x] **PUB-05**: Demo site / playground showing all player modes with interactive examples
 - [ ] **PUB-06**: CDN-installable IIFE build for `<script>` tag usage
 
 ## v2 Requirements
@@ -164,7 +164,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PUB-02 | Phase 6 | Pending |
 | PUB-03 | Phase 6 | Pending |
 | PUB-04 | Phase 6 | Pending |
-| PUB-05 | Phase 6 | Pending |
+| PUB-05 | Phase 6 | Complete |
 | PUB-06 | Phase 6 | Pending |
 
 **Coverage:**

@@ -119,7 +119,7 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 06-01-PLAN.md — Demo store, page route, video drop zone, and conversion pipeline
+- [x] 06-01-PLAN.md — Demo store, page route, video drop zone, and conversion pipeline
 - [ ] 06-02-PLAN.md — Player rendering, interactive controls, HTML export, and visual verification
 
 ## Progress
@@ -134,7 +134,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 3. Player Scaffold + Grid Mode | 4/4 | Complete   | 2026-04-03 |
 | 4. Player Rendering Modes | 3/3 | Complete   | 2026-04-03 |
 | 5. App Integration | 2/2 | Complete   | 2026-04-03 |
-| 6. Publishing | 0/2 | In Progress | - |
+| 6. Publishing | 1/2 | In Progress|  |
 
 ## Backlog
 
@@ -142,7 +142,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 
 **Goal:** Use MediaDevices API to capture webcam frames, convert live via @asciify/encoder, and render through @asciify/player. Interactive page where users see themselves as ASCII art in real time.
 **Requirements:** TBD
-**Plans:** 0 plans
+**Plans:** 1/2 plans executed
 
 Plans:
 - [ ] TBD (promote with /gsd:review-backlog when ready)
