@@ -100,7 +100,11 @@ Plans:
   2. Exported HTML files embed the compiled `@asciify/player` bundle and play back without any additional dependencies
   3. All existing export formats (HTML, WebGPU, APNG, SVG, ANSI) produce correct output after the migration
 **UI hint**: yes
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 05-01-PLAN.md — Export renderGridFrame from player, add workspace dep, swap live preview renderer
+- [ ] 05-02-PLAN.md — Refactor HTML export to embed player IIFE bundle
 
 ### Phase 6: Publishing
 **Goal**: Both packages are published to npm under @asciify scope, a demo site is live, and CI runs the full test suite on every PR
@@ -125,5 +129,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 2. Encoder Package | 3/3 | Complete   | 2026-04-02 |
 | 3. Player Scaffold + Grid Mode | 4/4 | Complete   | 2026-04-03 |
 | 4. Player Rendering Modes | 3/3 | Complete   | 2026-04-03 |
-| 5. App Integration | 0/? | Not started | - |
+| 5. App Integration | 0/2 | Planning   | - |
 | 6. Publishing | 0/? | Not started | - |
