@@ -52,8 +52,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Player Package — Extras
 
-- [ ] **XTRA-01**: Named themes (`theme="green-on-black"`, `matrix`, `amber`, `white-on-black`, `blue`)
-- [ ] **XTRA-02**: Scroll-triggered playback via `trigger="scroll"` attribute (IntersectionObserver)
+- [x] **XTRA-01**: Named themes (`theme="green-on-black"`, `matrix`, `amber`, `white-on-black`, `blue`)
+- [x] **XTRA-02**: Scroll-triggered playback via `trigger="scroll"` attribute (IntersectionObserver)
 
 ### App Integration
 
@@ -64,10 +64,10 @@ Requirements for initial release. Each maps to roadmap phases.
 ### Testing
 
 - [x] **TEST-01**: Unit tests for encoder — all conversion functions, edge cases, color modes, dithering algorithms (vitest)
-- [ ] **TEST-02**: Unit tests for player — playback logic, mode switching, option parsing (vitest)
-- [ ] **TEST-03**: Integration tests for player — canvas rendering output verification (vitest + canvas mocking)
-- [ ] **TEST-04**: Visual snapshot tests for player — rendered canvas output compared against baseline snapshots
-- [ ] **TEST-05**: Browser tests for Web Component — real DOM testing with Playwright (custom element registration, attribute changes, event firing)
+- [x] **TEST-02**: Unit tests for player — playback logic, mode switching, option parsing (vitest)
+- [x] **TEST-03**: Integration tests for player — canvas rendering output verification (vitest + canvas mocking)
+- [x] **TEST-04**: Visual snapshot tests for player — rendered canvas output compared against baseline snapshots
+- [x] **TEST-05**: Browser tests for Web Component — real DOM testing with Playwright (custom element registration, attribute changes, event firing)
 - [ ] **TEST-06**: CI pipeline running full test suite on PRs (Turborepo `test` task)
 
 ### Publishing & Demo
@@ -149,16 +149,16 @@ Which phases cover which requirements. Updated during roadmap creation.
 | MODE-03 | Phase 4 | Complete |
 | MODE-04 | Phase 4 | Complete |
 | MODE-05 | Phase 3 | Complete |
-| XTRA-01 | Phase 4 | Pending |
-| XTRA-02 | Phase 4 | Pending |
+| XTRA-01 | Phase 4 | Complete |
+| XTRA-02 | Phase 4 | Complete |
 | APP-01 | Phase 5 | Pending |
 | APP-02 | Phase 5 | Pending |
 | APP-03 | Phase 5 | Pending |
 | TEST-01 | Phase 2 | Complete |
-| TEST-02 | Phase 4 | Pending |
-| TEST-03 | Phase 4 | Pending |
-| TEST-04 | Phase 4 | Pending |
-| TEST-05 | Phase 4 | Pending |
+| TEST-02 | Phase 4 | Complete |
+| TEST-03 | Phase 4 | Complete |
+| TEST-04 | Phase 4 | Complete |
+| TEST-05 | Phase 4 | Complete |
 | TEST-06 | Phase 6 | Pending |
 | PUB-01 | Phase 6 | Pending |
 | PUB-02 | Phase 6 | Pending |
