@@ -65,7 +65,13 @@ Plans:
   4. `timeupdate` and `ended` events fire; `currentTime` and `duration` properties reflect playback state
   5. Font loading guard (`document.fonts.load()`) runs before pretext `prepare()` — no flash of unstyled glyphs
 **UI hint**: yes
-**Plans**: TBD
+**Plans**: 4 plans
+
+Plans:
+- [ ] 03-01-PLAN.md — Package tooling, dependencies, types, and build config
+- [ ] 03-02-PLAN.md — Core player engine: renderer, playback controller, AsciiPlayer class
+- [ ] 03-03-PLAN.md — Web Component with Shadow DOM, theming, controls, auto-sizing
+- [ ] 03-04-PLAN.md — Build integration tests and visual verification
 
 ### Phase 4: Player Rendering Modes
 **Goal**: All v1 rendering modes are available in `@asciify/player` and the package is fully tested
@@ -112,7 +118,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 |-------|----------------|--------|-----------|
 | 1. Monorepo Scaffolding | 3/3 | Complete   | 2026-04-02 |
 | 2. Encoder Package | 3/3 | Complete   | 2026-04-02 |
-| 3. Player Scaffold + Grid Mode | 0/? | Not started | - |
+| 3. Player Scaffold + Grid Mode | 0/4 | Not started | - |
 | 4. Player Rendering Modes | 0/? | Not started | - |
 | 5. App Integration | 0/? | Not started | - |
 | 6. Publishing | 0/? | Not started | - |
