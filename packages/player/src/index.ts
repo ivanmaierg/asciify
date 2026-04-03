@@ -1,5 +1,5 @@
-// AsciiPlayer class exported once implemented (Plan 02)
 // AsciiPlayerElement class exported once implemented (Plan 03)
+export { AsciiPlayer } from './player'
 export type {
   AsciiPlayerOptions,
   LoopMode,
