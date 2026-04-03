@@ -25,8 +25,8 @@ Developers and creative coders can install `@asciify/player` on any website to r
 - [x] Monorepo migration (pnpm workspaces + Turborepo) — Phase 1
 - [x] `@asciify/encoder` package — pure conversion functions, browser-only, tsup build — Phase 2
 - [x] Canonical JSON data format spec for frame data exchange between encoder and player — Phase 2
-- [ ] `@asciify/player` package — Web Component + ES Module, pretext-powered layout
-- [ ] Player grid mode — classic fixed-grid ASCII art playback
+- [x] `@asciify/player` package — Web Component + ES Module, pretext-powered layout — Phase 3
+- [x] Player grid mode — classic fixed-grid ASCII art playback — Phase 3
 - [ ] Player proportional font mode — variable-width font rendering via pretext
 - [ ] Player typewriter mode — character-by-character text animation with configurable delay
 - [ ] Player typewriter timestamp mode — precise timing data for audio sync
@@ -89,4 +89,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-02 after Phase 2 completion*
+*Last updated: 2026-04-03 after Phase 3 completion*
