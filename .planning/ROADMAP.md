@@ -84,7 +84,12 @@ Plans:
   4. `<ascii-player theme="matrix">` applies a named color theme; `trigger="scroll"` starts playback when the element enters the viewport
   5. Player unit, integration, snapshot, and browser tests all pass
 **UI hint**: yes
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] 04-01-PLAN.md — Types, proportional renderer, typewriter reveal engine
+- [ ] 04-02-PLAN.md — Wire modes into AsciiPlayer + Web Component triggers
+- [ ] 04-03-PLAN.md — Snapshot, integration, and Playwright browser tests
 
 ### Phase 5: App Integration
 **Goal**: apps/web uses @asciify/player for live preview and the HTML export embeds the compiled player bundle
@@ -119,6 +124,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 1. Monorepo Scaffolding | 3/3 | Complete   | 2026-04-02 |
 | 2. Encoder Package | 3/3 | Complete   | 2026-04-02 |
 | 3. Player Scaffold + Grid Mode | 4/4 | Complete   | 2026-04-03 |
-| 4. Player Rendering Modes | 0/? | Not started | - |
+| 4. Player Rendering Modes | 0/3 | Planning complete | - |
 | 5. App Integration | 0/? | Not started | - |
 | 6. Publishing | 0/? | Not started | - |
