@@ -69,7 +69,7 @@ Plans:
 
 Plans:
 - [x] 03-01-PLAN.md — Package tooling, dependencies, types, and build config
-- [ ] 03-02-PLAN.md — Core player engine: renderer, playback controller, AsciiPlayer class
+- [x] 03-02-PLAN.md — Core player engine: renderer, playback controller, AsciiPlayer class
 - [ ] 03-03-PLAN.md — Web Component with Shadow DOM, theming, controls, auto-sizing
 - [ ] 03-04-PLAN.md — Build integration tests and visual verification
 

@@ -30,25 +30,25 @@ Requirements for initial release. Each maps to roadmap phases.
 
 - [x] **PLR-01**: `@asciify/player` package created with tsup build (ESM + CJS + IIFE + types)
 - [ ] **PLR-02**: Web Component `<ascii-player>` registered as custom element
-- [ ] **PLR-03**: ES Module API: `new AsciiPlayer(canvas, data, options)` for programmatic use
-- [ ] **PLR-04**: `play()`, `pause()`, `seekTo(seconds)` methods on both Web Component and ES Module
-- [ ] **PLR-05**: Configurable FPS via attribute/option
-- [ ] **PLR-06**: Loop modes: `forever`, `once`, or numeric N
-- [ ] **PLR-07**: Autoplay attribute/option
+- [x] **PLR-03**: ES Module API: `new AsciiPlayer(canvas, data, options)` for programmatic use
+- [x] **PLR-04**: `play()`, `pause()`, `seekTo(seconds)` methods on both Web Component and ES Module
+- [x] **PLR-05**: Configurable FPS via attribute/option
+- [x] **PLR-06**: Loop modes: `forever`, `once`, or numeric N
+- [x] **PLR-07**: Autoplay attribute/option
 - [ ] **PLR-08**: Foreground and background color attributes/options
 - [ ] **PLR-09**: Canvas auto-sizing (width given, height calculated from frame aspect ratio)
 - [x] **PLR-10**: `@chenglou/pretext` bundled inside player (not exposed as peer dep)
-- [ ] **PLR-11**: Font loading guard (`document.fonts.load()` before pretext `prepare()`)
-- [ ] **PLR-12**: `currentTime`, `duration` properties and `timeupdate`, `ended` custom events (mirrors HTMLMediaElement)
+- [x] **PLR-11**: Font loading guard (`document.fonts.load()` before pretext `prepare()`)
+- [x] **PLR-12**: `currentTime`, `duration` properties and `timeupdate`, `ended` custom events (mirrors HTMLMediaElement)
 - [ ] **PLR-13**: Optional playback controls bar via `controls` attribute
 
 ### Player Package — Rendering Modes
 
-- [ ] **MODE-01**: Grid mode — fixed monospace grid rendering (classic ASCII art)
+- [x] **MODE-01**: Grid mode — fixed monospace grid rendering (classic ASCII art)
 - [ ] **MODE-02**: Proportional font mode — variable-width font rendering via pretext `layoutWithLines()`
 - [ ] **MODE-03**: Typewriter mode — character-by-character reveal with configurable per-character delay
 - [ ] **MODE-04**: Typewriter timestamp mode — precise per-character timing data for audio sync
-- [ ] **MODE-05**: `font` attribute/option — render with any loaded web font
+- [x] **MODE-05**: `font` attribute/option — render with any loaded web font
 
 ### Player Package — Extras
 
@@ -133,22 +133,22 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ENC-08 | Phase 2 | Complete |
 | PLR-01 | Phase 3 | Complete |
 | PLR-02 | Phase 3 | Pending |
-| PLR-03 | Phase 3 | Pending |
-| PLR-04 | Phase 3 | Pending |
-| PLR-05 | Phase 3 | Pending |
-| PLR-06 | Phase 3 | Pending |
-| PLR-07 | Phase 3 | Pending |
+| PLR-03 | Phase 3 | Complete |
+| PLR-04 | Phase 3 | Complete |
+| PLR-05 | Phase 3 | Complete |
+| PLR-06 | Phase 3 | Complete |
+| PLR-07 | Phase 3 | Complete |
 | PLR-08 | Phase 3 | Pending |
 | PLR-09 | Phase 3 | Pending |
 | PLR-10 | Phase 3 | Complete |
-| PLR-11 | Phase 3 | Pending |
-| PLR-12 | Phase 3 | Pending |
+| PLR-11 | Phase 3 | Complete |
+| PLR-12 | Phase 3 | Complete |
 | PLR-13 | Phase 3 | Pending |
-| MODE-01 | Phase 3 | Pending |
+| MODE-01 | Phase 3 | Complete |
 | MODE-02 | Phase 4 | Pending |
 | MODE-03 | Phase 4 | Pending |
 | MODE-04 | Phase 4 | Pending |
-| MODE-05 | Phase 3 | Pending |
+| MODE-05 | Phase 3 | Complete |
 | XTRA-01 | Phase 4 | Pending |
 | XTRA-02 | Phase 4 | Pending |
 | APP-01 | Phase 5 | Pending |
