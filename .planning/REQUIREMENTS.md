@@ -28,7 +28,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Player Package — Core
 
-- [ ] **PLR-01**: `@asciify/player` package created with tsup build (ESM + CJS + IIFE + types)
+- [x] **PLR-01**: `@asciify/player` package created with tsup build (ESM + CJS + IIFE + types)
 - [ ] **PLR-02**: Web Component `<ascii-player>` registered as custom element
 - [ ] **PLR-03**: ES Module API: `new AsciiPlayer(canvas, data, options)` for programmatic use
 - [ ] **PLR-04**: `play()`, `pause()`, `seekTo(seconds)` methods on both Web Component and ES Module
@@ -37,7 +37,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [ ] **PLR-07**: Autoplay attribute/option
 - [ ] **PLR-08**: Foreground and background color attributes/options
 - [ ] **PLR-09**: Canvas auto-sizing (width given, height calculated from frame aspect ratio)
-- [ ] **PLR-10**: `@chenglou/pretext` bundled inside player (not exposed as peer dep)
+- [x] **PLR-10**: `@chenglou/pretext` bundled inside player (not exposed as peer dep)
 - [ ] **PLR-11**: Font loading guard (`document.fonts.load()` before pretext `prepare()`)
 - [ ] **PLR-12**: `currentTime`, `duration` properties and `timeupdate`, `ended` custom events (mirrors HTMLMediaElement)
 - [ ] **PLR-13**: Optional playback controls bar via `controls` attribute
@@ -131,7 +131,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ENC-06 | Phase 2 | Complete |
 | ENC-07 | Phase 2 | Complete |
 | ENC-08 | Phase 2 | Complete |
-| PLR-01 | Phase 3 | Pending |
+| PLR-01 | Phase 3 | Complete |
 | PLR-02 | Phase 3 | Pending |
 | PLR-03 | Phase 3 | Pending |
 | PLR-04 | Phase 3 | Pending |
@@ -140,7 +140,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PLR-07 | Phase 3 | Pending |
 | PLR-08 | Phase 3 | Pending |
 | PLR-09 | Phase 3 | Pending |
-| PLR-10 | Phase 3 | Pending |
+| PLR-10 | Phase 3 | Complete |
 | PLR-11 | Phase 3 | Pending |
 | PLR-12 | Phase 3 | Pending |
 | PLR-13 | Phase 3 | Pending |
