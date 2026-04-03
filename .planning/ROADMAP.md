@@ -107,7 +107,7 @@ Plans:
 - [x] 05-02-PLAN.md — Refactor HTML export to embed player IIFE bundle
 
 ### Phase 6: Publishing
-**Goal**: Both packages are published to npm under @asciify scope, a demo site is live, and CI runs the full test suite on every PR
+**Goal**: Interactive demo playground validates the full encoder-to-player pipeline end-to-end
 **Depends on**: Phase 5
 **Requirements**: PUB-01, PUB-02, PUB-03, PUB-04, PUB-05, PUB-06, TEST-06
 **Success Criteria** (what must be TRUE):
@@ -116,7 +116,11 @@ Plans:
   3. The demo site shows all player modes with interactive examples a developer can copy-paste
   4. A CDN `<script>` tag referencing the IIFE build renders an ASCII player with no npm tooling required
   5. GitHub CI runs the full Turborepo test suite on every PR and fails the build on test failure
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 06-01-PLAN.md — Demo store, page route, video drop zone, and conversion pipeline
+- [ ] 06-02-PLAN.md — Player rendering, interactive controls, HTML export, and visual verification
 
 ## Progress
 
@@ -130,4 +134,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 3. Player Scaffold + Grid Mode | 4/4 | Complete   | 2026-04-03 |
 | 4. Player Rendering Modes | 3/3 | Complete   | 2026-04-03 |
 | 5. App Integration | 2/2 | Complete   | 2026-04-03 |
-| 6. Publishing | 0/? | Not started | - |
+| 6. Publishing | 0/2 | In Progress | - |
