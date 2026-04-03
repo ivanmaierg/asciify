@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>ASCII Player Test</title>
+  <style>
+    body { background: #111; color: #eee; font-family: monospace; padding: 2rem; }
+    ascii-player { display: block; width: 600px; margin: 1rem 0; border: 1px solid #333; }
+    h2 { margin-top: 2rem; }
+    .pass { color: #0f0; }
+    .fail { color: #f00; }
+  </style>
+</head>
+<body>
+  <h1>@asciify/player -- Visual Test</h1>
+
+  <!-- IIFE build loaded via classic script tag (verifies PLR-01 / IIFE global) -->
+  <script src="./dist/index.global.js"></script>
+  <script>
+    // Verify IIFE global is accessible
+    const iifeCheck = document.createElement('p')
+    if (window.Asciify && window.Asciify.AsciiPlayer) {
+      iifeCheck.textContent = 'IIFE check: window.Asciify.AsciiPlayer exists'
+      iifeCheck.className = 'pass'
+    } else {
+      iifeCheck.textContent = 'IIFE check: FAILED -- window.Asciify.AsciiPlayer not found'
+      iifeCheck.className = 'fail'
+    }
+    document.addEventListener('DOMContentLoaded', () => document.body.prepend(iifeCheck))
+  </script>
+
+  <h2>Test 1: Web Component with controls + autoplay</h2>
+  <ascii-player id="test1" controls autoplay loop="forever" fg-color="#00ff41" bg-color="#0d0208"></ascii-player>
+
+  <h2>Test 2: ES Module API (canvas below)</h2>
+  <canvas id="test2" width="600" height="300"></canvas>
+
+  <script type="module">
+    // Generate synthetic test data inline
+    function makeTestData() {
+      const cols = 60, rows = 20, charset = ' .:-=+*#%@'
+      const frames = []
+      for (let f = 0; f < 30; f++) {
+        const cells = []
+        let text = ''
+        for (let r = 0; r < rows; r++) {
+          const row = []
+          for (let c = 0; c < cols; c++) {
+            const brightness = (Math.sin((c + f * 2) / 8) * Math.cos((r + f) / 6) + 1) / 2
+            const charIdx = Math.floor(brightness * (charset.length - 1))
+            const char = charset[charIdx]
+            row.push({ char, r: 0, g: Math.floor(brightness * 255), b: 0, brightness })
+            text += char
+          }
+          cells.push(row)
+          text += '\n'
+        }
+        frames.push({ text, cells })
+      }
+      return {
+        version: 1,
+        metadata: { columns: cols, rows, fps: 12, duration: 30 / 12, frameCount: 30, colorMode: 'colored', charset },
+        frames,
+      }
+    }
+
+    const data = makeTestData()
+
+    // Test 1: Web Component with .data property
+    const el = document.getElementById('test1')
+    el.data = data
+
+    // Test 2: ES Module API -- use IIFE global since ESM build has external encoder dep
+    const { AsciiPlayer } = window.Asciify
+    const canvas = document.getElementById('test2')
+    const player = new AsciiPlayer(canvas, data, {
+      fps: 12, loop: 'forever', autoplay: true,
+      fgColor: '#ffb000', bgColor: '#1a1200',
+      font: '14px monospace',
+    })
+    player.ready.then(() => console.log('ES Module player ready'))
+  </script>
+
+  <p>Expected: Two animated ASCII art displays. Top uses Web Component with green-on-dark colors. Bottom uses ES Module API with amber colors. IIFE check at top should show green "pass".</p>
+</body>
+</html>
