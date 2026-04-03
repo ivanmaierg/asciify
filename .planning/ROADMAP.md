@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Monorepo Scaffolding** - Restructure repo into pnpm workspaces with Turborepo orchestration (completed 2026-04-02)
 - [x] **Phase 2: Encoder Package** - Extract @asciify/encoder with canonical JSON data format spec (completed 2026-04-02)
-- [ ] **Phase 3: Player Scaffold + Grid Mode** - Build @asciify/player Web Component with grid rendering
+- [x] **Phase 3: Player Scaffold + Grid Mode** - Build @asciify/player Web Component with grid rendering (completed 2026-04-03)
 - [ ] **Phase 4: Player Rendering Modes** - Add proportional, typewriter, themes, and scroll trigger
 - [ ] **Phase 5: App Integration** - Wire apps/web to consume both packages for preview and export
 - [ ] **Phase 6: Publishing** - Publish both packages to npm with CI, demo site, and CDN build
@@ -71,7 +71,7 @@ Plans:
 - [x] 03-01-PLAN.md — Package tooling, dependencies, types, and build config
 - [x] 03-02-PLAN.md — Core player engine: renderer, playback controller, AsciiPlayer class
 - [x] 03-03-PLAN.md — Web Component with Shadow DOM, theming, controls, auto-sizing
-- [ ] 03-04-PLAN.md — Build integration tests and visual verification
+- [x] 03-04-PLAN.md — Build integration tests and visual verification
 
 ### Phase 4: Player Rendering Modes
 **Goal**: All v1 rendering modes are available in `@asciify/player` and the package is fully tested
@@ -118,7 +118,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 |-------|----------------|--------|-----------|
 | 1. Monorepo Scaffolding | 3/3 | Complete   | 2026-04-02 |
 | 2. Encoder Package | 3/3 | Complete   | 2026-04-02 |
-| 3. Player Scaffold + Grid Mode | 0/4 | Not started | - |
+| 3. Player Scaffold + Grid Mode | 4/4 | Complete   | 2026-04-03 |
 | 4. Player Rendering Modes | 0/? | Not started | - |
 | 5. App Integration | 0/? | Not started | - |
 | 6. Publishing | 0/? | Not started | - |
