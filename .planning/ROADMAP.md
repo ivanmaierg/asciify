@@ -135,3 +135,14 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 4. Player Rendering Modes | 3/3 | Complete   | 2026-04-03 |
 | 5. App Integration | 2/2 | Complete   | 2026-04-03 |
 | 6. Publishing | 0/2 | In Progress | - |
+
+## Backlog
+
+### Phase 999.1: Real-time Webcam ASCII Demo (BACKLOG)
+
+**Goal:** Use MediaDevices API to capture webcam frames, convert live via @asciify/encoder, and render through @asciify/player. Interactive page where users see themselves as ASCII art in real time.
+**Requirements:** TBD
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (promote with /gsd:review-backlog when ready)
