@@ -31,7 +31,7 @@ Developers and creative coders can install `@asciify/player` on any website to r
 - [x] Player typewriter mode — character-by-character text animation with configurable delay — Phase 4
 - [x] Player typewriter timestamp mode — precise timing data for audio sync — Phase 4
 - [ ] Player reflow mode — responsive container resize with real-time text reflow
-- [ ] Refactor `apps/web` to consume both packages internally
+- [x] Refactor `apps/web` to consume both packages internally — Phase 5
 - [ ] Demo site / playground showing all player modes
 - [ ] Publish both packages to npm under `@asciify` scope
 
@@ -89,4 +89,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-03 after Phase 4 completion*
+*Last updated: 2026-04-03 after Phase 5 completion*
