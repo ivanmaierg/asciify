@@ -10,3 +10,4 @@ export type {
   PlayerInputData,
 } from './types'
 export { THEMES } from './types'
+export { renderGridFrame } from './renderer'

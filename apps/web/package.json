@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "pnpm run copy-player-bundle && next build",
+    "copy-player-bundle": "cp ../../packages/player/dist/index.global.js public/player-bundle.js",
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
@@ -12,6 +13,7 @@
   },
   "dependencies": {
     "@asciify/encoder": "workspace:*",
+    "@asciify/player": "workspace:*",
     "@base-ui/react": "^1.3.0",
     "@ffmpeg/ffmpeg": "^0.12.15",
     "@ffmpeg/util": "^0.12.2",
