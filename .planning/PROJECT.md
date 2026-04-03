@@ -27,9 +27,9 @@ Developers and creative coders can install `@asciify/player` on any website to r
 - [x] Canonical JSON data format spec for frame data exchange between encoder and player — Phase 2
 - [x] `@asciify/player` package — Web Component + ES Module, pretext-powered layout — Phase 3
 - [x] Player grid mode — classic fixed-grid ASCII art playback — Phase 3
-- [ ] Player proportional font mode — variable-width font rendering via pretext
-- [ ] Player typewriter mode — character-by-character text animation with configurable delay
-- [ ] Player typewriter timestamp mode — precise timing data for audio sync
+- [x] Player proportional font mode — variable-width font rendering via pretext — Phase 4
+- [x] Player typewriter mode — character-by-character text animation with configurable delay — Phase 4
+- [x] Player typewriter timestamp mode — precise timing data for audio sync — Phase 4
 - [ ] Player reflow mode — responsive container resize with real-time text reflow
 - [ ] Refactor `apps/web` to consume both packages internally
 - [ ] Demo site / playground showing all player modes
@@ -89,4 +89,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-03 after Phase 3 completion*
+*Last updated: 2026-04-03 after Phase 4 completion*
