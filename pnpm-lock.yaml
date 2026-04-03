@@ -106,6 +106,9 @@ importers:
         specifier: ^0.0.4
         version: 0.0.4
     devDependencies:
+      '@asciify/encoder':
+        specifier: workspace:*
+        version: link:../encoder
       happy-dom:
         specifier: ^20.8.9
         version: 20.8.9
