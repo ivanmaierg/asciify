@@ -45,9 +45,9 @@ Requirements for initial release. Each maps to roadmap phases.
 ### Player Package — Rendering Modes
 
 - [x] **MODE-01**: Grid mode — fixed monospace grid rendering (classic ASCII art)
-- [ ] **MODE-02**: Proportional font mode — variable-width font rendering via pretext `layoutWithLines()`
-- [ ] **MODE-03**: Typewriter mode — character-by-character reveal with configurable per-character delay
-- [ ] **MODE-04**: Typewriter timestamp mode — precise per-character timing data for audio sync
+- [x] **MODE-02**: Proportional font mode — variable-width font rendering via pretext `layoutWithLines()`
+- [x] **MODE-03**: Typewriter mode — character-by-character reveal with configurable per-character delay
+- [x] **MODE-04**: Typewriter timestamp mode — precise per-character timing data for audio sync
 - [x] **MODE-05**: `font` attribute/option — render with any loaded web font
 
 ### Player Package — Extras
@@ -145,9 +145,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PLR-12 | Phase 3 | Complete |
 | PLR-13 | Phase 3 | Complete |
 | MODE-01 | Phase 3 | Complete |
-| MODE-02 | Phase 4 | Pending |
-| MODE-03 | Phase 4 | Pending |
-| MODE-04 | Phase 4 | Pending |
+| MODE-02 | Phase 4 | Complete |
+| MODE-03 | Phase 4 | Complete |
+| MODE-04 | Phase 4 | Complete |
 | MODE-05 | Phase 3 | Complete |
 | XTRA-01 | Phase 4 | Pending |
 | XTRA-02 | Phase 4 | Pending |

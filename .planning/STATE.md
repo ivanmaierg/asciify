@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: verifying
-stopped_at: Phase 4 context gathered
-last_updated: "2026-04-03T19:35:36.986Z"
+status: executing
+stopped_at: Completed 04-01-PLAN.md
+last_updated: "2026-04-03T20:09:59.651Z"
 last_activity: 2026-04-03
 progress:
   total_phases: 6
   completed_phases: 3
-  total_plans: 10
-  completed_plans: 10
+  total_plans: 13
+  completed_plans: 11
   percent: 17
 ---
 
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-02)
 
 **Core value:** Developers and creative coders can install `@asciify/player` on any website to render and animate text on canvas — with a single HTML tag or ES import.
-**Current focus:** Phase 03 — player-scaffold-grid-mode
+**Current focus:** Phase 04 — player-rendering-modes
 
 ## Current Position
 
-Phase: 4
-Plan: Not started
-Status: Phase complete — ready for verification
+Phase: 04 (player-rendering-modes) — EXECUTING
+Plan: 2 of 3
+Status: Ready to execute
 Last activity: 2026-04-03
 
 Progress: [█░░░░░░░░░] 17%
@@ -61,6 +61,7 @@ Progress: [█░░░░░░░░░] 17%
 | Phase 03-player-scaffold-grid-mode P01 | 133 | 2 tasks | 6 files |
 | Phase 03-player-scaffold-grid-mode P02 | 180 | 2 tasks | 7 files |
 | Phase 03-player-scaffold-grid-mode P04 | 525729 | 2 tasks | 2 files |
+| Phase 04 P01 | 161 | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -84,6 +85,9 @@ Recent decisions affecting current work:
 - [Phase 03-02]: Compact AsciiPlayerDataCompact decompresses to AsciiFrame[] with empty cells (text-only) for monochrome playback without per-cell color overhead
 - [Phase 03-player-scaffold-grid-mode]: Integration tests read dist files via node:fs to verify bundling constraints (pretext bundled, encoder external) without relying on module resolution
 - [Phase 03-player-scaffold-grid-mode]: Integration tests read dist files directly via node:fs to verify bundling constraints (pretext bundled, encoder external) without relying on module resolution
+- [Phase 04]: renderProportionalFrame uses pretext widths[] prefix sums for x-positioning (D-01), not ctx.measureText()
+- [Phase 04]: TypewriterReveal timestamps use startTime + i*charDelay formula for audio sync alignment (MODE-04)
+- [Phase 04]: renderTypewriterFrame uses grid-mode fixed charWidth; proportional-typewriter combination deferred from v1 scope
 
 ### Pending Todos
 
@@ -96,6 +100,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-03T19:35:36.983Z
-Stopped at: Phase 4 context gathered
-Resume file: .planning/phases/04-player-rendering-modes/04-CONTEXT.md
+Last session: 2026-04-03T20:09:59.648Z
+Stopped at: Completed 04-01-PLAN.md
+Resume file: None
