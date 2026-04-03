@@ -4,8 +4,10 @@ import { useRef, useEffect, useCallback, useState } from 'react'
 import { useEditorStore } from '@/stores/editor-store'
 import { convertFrameToAscii, CHARACTER_SETS } from '@asciify/encoder'
 import type { CharacterSetName } from '@asciify/encoder'
-import { renderAsciiToCanvas } from '@/lib/pretext-renderer'
+import type { renderGridFrame as RenderGridFrameFn } from '@asciify/player'
 import { measureMonospaceChar } from '@/lib/measure-char'
+
+type RenderGridFrame = typeof RenderGridFrameFn
 import { WebGPURenderer } from '@/lib/webgpu-renderer'
 import { connectAudioPreview, disconnectAudioPreview, destroyAudioPreview } from '@/lib/audio-preview'
 
@@ -30,6 +32,7 @@ export function AsciiCanvas() {
   const rafRef = useRef<number>(0)
   const fpsRef = useRef({ frames: 0, lastTime: performance.now(), value: 0 })
   const gpuRef = useRef<WebGPURenderer | null>(null)
+  const renderGridFrameRef = useRef<RenderGridFrame | null>(null)
   const [useWebGPU, setUseWebGPU] = useState(false)
 
   const store = useEditorStore()
@@ -37,6 +40,13 @@ export function AsciiCanvas() {
   // Check WebGPU availability
   useEffect(() => {
     WebGPURenderer.isAvailable().then(setUseWebGPU)
+  }, [])
+
+  // Load @asciify/player renderer (browser-only; dynamic import avoids SSR HTMLElement errors)
+  useEffect(() => {
+    import('@asciify/player').then((mod) => {
+      renderGridFrameRef.current = mod.renderGridFrame
+    })
   }, [])
 
   // Create video element and load source
@@ -215,16 +225,13 @@ export function AsciiCanvas() {
         displayCanvas.height = canvasHeight
       }
 
-      renderAsciiToCanvas(
+      dctx.font = font
+      renderGridFrameRef.current?.(
         dctx,
-        result.text,
-        result.cells,
-        font,
-        s.fontSize,
+        result,
+        charWidth,
         lineHeight,
-        canvasWidth,
-        canvasHeight,
-        s.colorMode === 'colored' || s.colorMode === 'monoscale' ? undefined : s.foregroundColor,
+        s.foregroundColor,
         s.backgroundColor,
         s.colorMode,
       )
