@@ -3,12 +3,37 @@
   "version": "0.1.0",
   "private": false,
   "type": "module",
-  "main": "./src/index.ts",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
   "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist"
   },
+  "peerDependencies": {
+    "@asciify/encoder": "workspace:*"
+  },
+  "dependencies": {
+    "@chenglou/pretext": "^0.0.4"
+  },
   "devDependencies": {
-    "typescript": "^5"
+    "happy-dom": "^20.8.9",
+    "tsup": "^8.5.1",
+    "typescript": "^5",
+    "vitest": "^4.1.2"
   }
 }
