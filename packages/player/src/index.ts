@@ -1,5 +1,5 @@
-// AsciiPlayerElement class exported once implemented (Plan 03)
 export { AsciiPlayer } from './player'
+export { AsciiPlayerElement, registerAsciiPlayer } from './web-component'
 export type {
   AsciiPlayerOptions,
   LoopMode,
