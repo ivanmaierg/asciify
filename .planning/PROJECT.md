@@ -32,7 +32,7 @@ Developers and creative coders can install `@asciify/player` on any website to r
 - [x] Player typewriter timestamp mode — precise timing data for audio sync — Phase 4
 - [ ] Player reflow mode — responsive container resize with real-time text reflow
 - [x] Refactor `apps/web` to consume both packages internally — Phase 5
-- [ ] Demo site / playground showing all player modes
+- [x] Demo site / playground showing all player modes — Phase 6
 - [ ] Publish both packages to npm under `@asciify` scope
 
 ### Out of Scope
@@ -89,4 +89,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-03 after Phase 5 completion*
+*Last updated: 2026-04-04 after Phase 6 completion*
