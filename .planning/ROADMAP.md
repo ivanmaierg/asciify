@@ -120,7 +120,7 @@ Plans:
 
 Plans:
 - [x] 06-01-PLAN.md — Demo store, page route, video drop zone, and conversion pipeline
-- [ ] 06-02-PLAN.md — Player rendering, interactive controls, HTML export, and visual verification
+- [x] 06-02-PLAN.md — Player rendering, interactive controls, HTML export, and visual verification
 
 ## Progress
 

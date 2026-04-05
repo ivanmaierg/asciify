@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 06-01-PLAN.md
-last_updated: "2026-04-03T21:36:50.081Z"
-last_activity: 2026-04-03
+status: verifying
+stopped_at: Completed 06-02-PLAN.md
+last_updated: "2026-04-05T01:33:16.200Z"
+last_activity: 2026-04-05
 progress:
   total_phases: 7
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 17
-  completed_plans: 16
+  completed_plans: 17
   percent: 17
 ---
 
@@ -27,8 +27,8 @@ See: .planning/PROJECT.md (updated 2026-04-02)
 
 Phase: 06 (publishing) — EXECUTING
 Plan: 2 of 2
-Status: Ready to execute
-Last activity: 2026-04-03
+Status: Phase complete — ready for verification
+Last activity: 2026-04-05
 
 Progress: [█░░░░░░░░░] 17%
 
@@ -67,6 +67,7 @@ Progress: [█░░░░░░░░░] 17%
 | Phase 05-app-integration P01 | 135 | 2 tasks | 4 files |
 | Phase 05-app-integration P02 | 480 | 2 tasks | 2 files |
 | Phase 06-publishing P01 | 480 | 2 tasks | 5 files |
+| Phase 06-publishing P02 | 45 | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -103,6 +104,9 @@ Recent decisions affecting current work:
 - [Phase 05-02]: Player API uses isPlaying (not paused) — controls bootstrap adapted; player.ready.then() wraps event wiring; columns added to ExportOptions for AsciiPlayerDataCompact metadata
 - [Phase 06-publishing]: Demo store is standalone (separate from editor-store) to avoid coupling demo to editor state
 - [Phase 06-publishing]: Demo components follow same patterns as editor: base-ui Slider onValueChange provides number | readonly number[], sliderVal helper handles both
+- [Phase 06-publishing]: THEMES inlined in demo-controls.tsx to prevent SSR crash from importing HTMLElement-dependent @asciify/player module
+- [Phase 06-publishing]: Imperative document.createElement('ascii-player') pattern used in DemoPlayer — React does not pass custom attributes reliably to custom elements
+- [Phase 06-publishing]: Canvas sizing in web-component.ts uses metadata + font metrics instead of clientWidth to fix zero-size on hidden/unmounted elements
 
 ### Pending Todos
 
@@ -115,6 +119,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-03T21:36:50.078Z
-Stopped at: Completed 06-01-PLAN.md
+Last session: 2026-04-05T01:33:16.197Z
+Stopped at: Completed 06-02-PLAN.md
 Resume file: None
