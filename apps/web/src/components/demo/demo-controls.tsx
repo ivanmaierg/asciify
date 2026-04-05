@@ -2,8 +2,16 @@
 
 import { useState } from 'react'
 import { useDemoStore } from '@/stores/demo-store'
-import { THEMES } from '@asciify/player'
 import type { RenderMode, LoopMode } from '@asciify/player'
+
+// Inlined to avoid static import of @asciify/player (triggers HTMLElement reference during SSR)
+const THEMES: Record<string, { name: string; fgColor: string; bgColor: string }> = {
+  'green-on-black': { name: 'green-on-black', fgColor: '#00ff00', bgColor: '#000000' },
+  'matrix': { name: 'matrix', fgColor: '#00ff41', bgColor: '#0d0208' },
+  'amber': { name: 'amber', fgColor: '#ffb000', bgColor: '#1a1200' },
+  'white-on-black': { name: 'white-on-black', fgColor: '#ffffff', bgColor: '#000000' },
+  'blue': { name: 'blue', fgColor: '#00bfff', bgColor: '#000a14' },
+}
 import { Button } from '@/components/ui/button'
 import { Slider } from '@/components/ui/slider'
 import { Loader2 } from 'lucide-react'

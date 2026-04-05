@@ -43,14 +43,14 @@ export function DemoPlayground() {
               Drop a video, tweak settings, watch it play as ASCII art
             </p>
           </div>
-          {videoUrl && (
+          {(videoUrl || playerData) && (
             <Button variant="outline" size="sm" onClick={reset}>
               Reset
             </Button>
           )}
         </div>
 
-        {!videoUrl ? (
+        {!videoUrl && !playerData ? (
           <DemoDropZone />
         ) : (
           <div className="space-y-6">

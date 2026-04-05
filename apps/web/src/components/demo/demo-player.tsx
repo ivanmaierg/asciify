@@ -8,6 +8,7 @@ export function DemoPlayer() {
   const elementRef = useRef<HTMLElement | null>(null)
   const blobUrlRef = useRef<string | null>(null)
   const registeredRef = useRef(false)
+  const readyRef = useRef(false)
 
   const playerData = useDemoStore((s) => s.playerData)
   const renderMode = useDemoStore((s) => s.renderMode)
@@ -20,54 +21,61 @@ export function DemoPlayer() {
   useEffect(() => {
     if (!containerRef.current) return
 
-    let cleanup: (() => void) | undefined
+    let cancelled = false
 
     import('@asciify/player').then(({ registerAsciiPlayer }) => {
+      if (cancelled || !containerRef.current) return
+
       if (!registeredRef.current) {
         registerAsciiPlayer()
         registeredRef.current = true
       }
 
-      if (!containerRef.current) return
-
-      // Create the <ascii-player> element imperatively (React custom element support is limited)
       const el = document.createElement('ascii-player') as HTMLElement
       el.setAttribute('autoplay', '')
       el.setAttribute('controls', '')
-      el.setAttribute('loop', String(loop))
-      el.setAttribute('fps', String(fps))
-      el.setAttribute('mode', renderMode)
-      el.setAttribute('theme', theme)
-      el.setAttribute('char-delay', String(charDelay))
-      el.setAttribute('width', '800')
+      el.setAttribute('loop', String(useDemoStore.getState().loop))
+      el.setAttribute('fps', String(useDemoStore.getState().fps))
+      el.setAttribute('mode', useDemoStore.getState().renderMode)
+      el.setAttribute('theme', useDemoStore.getState().theme)
+      el.setAttribute('char-delay', String(useDemoStore.getState().charDelay))
       el.style.display = 'block'
       el.style.width = '100%'
 
       containerRef.current.appendChild(el)
       elementRef.current = el
+      readyRef.current = true
 
-      cleanup = () => {
-        el.remove()
-        elementRef.current = null
-        if (blobUrlRef.current) {
-          URL.revokeObjectURL(blobUrlRef.current)
-          blobUrlRef.current = null
-        }
+      // If playerData already exists (conversion happened before mount resolved),
+      // set src now
+      const currentData = useDemoStore.getState().playerData
+      if (currentData) {
+        const blob = new Blob([JSON.stringify(currentData)], { type: 'application/json' })
+        const url = URL.createObjectURL(blob)
+        blobUrlRef.current = url
+        el.setAttribute('src', url)
       }
     })
 
     return () => {
-      cleanup?.()
+      cancelled = true
+      if (elementRef.current) {
+        elementRef.current.remove()
+        elementRef.current = null
+      }
+      readyRef.current = false
+      if (blobUrlRef.current) {
+        URL.revokeObjectURL(blobUrlRef.current)
+        blobUrlRef.current = null
+      }
     }
-    // Only run on mount/unmount — attribute updates are handled separately
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Update src when playerData changes
+  // Update src when playerData changes (after element is ready)
   useEffect(() => {
-    if (!playerData || !elementRef.current) return
+    if (!playerData || !readyRef.current || !elementRef.current) return
 
-    // Revoke previous blob URL
     if (blobUrlRef.current) {
       URL.revokeObjectURL(blobUrlRef.current)
       blobUrlRef.current = null

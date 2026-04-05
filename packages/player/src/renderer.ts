@@ -84,22 +84,34 @@ export function renderGridFrame(
   ctx.textBaseline = 'top'
 
   const cells = frame.cells
-  for (let row = 0; row < cells.length; row++) {
-    const rowCells = cells[row]
-    for (let col = 0; col < rowCells.length; col++) {
-      const cell = rowCells[col]
-      // Skip space characters
-      if (cell.char === ' ') continue
+  if (cells.length > 0) {
+    // Full AsciiFrame with per-cell data (supports colored modes)
+    for (let row = 0; row < cells.length; row++) {
+      const rowCells = cells[row]
+      for (let col = 0; col < rowCells.length; col++) {
+        const cell = rowCells[col]
+        if (cell.char === ' ') continue
 
-      // Set color based on mode
-      if (colorMode === 'colored' || colorMode === 'monoscale') {
-        ctx.fillStyle = `rgb(${cell.r},${cell.g},${cell.b})`
-      } else {
-        // monochrome or inverted: use fgColor
-        ctx.fillStyle = fgColor
+        if (colorMode === 'colored' || colorMode === 'monoscale') {
+          ctx.fillStyle = `rgb(${cell.r},${cell.g},${cell.b})`
+        } else {
+          ctx.fillStyle = fgColor
+        }
+
+        ctx.fillText(cell.char, col * charWidth, row * lineHeight)
       }
-
-      ctx.fillText(cell.char, col * charWidth, row * lineHeight)
+    }
+  } else if (frame.text) {
+    // Compact format: text-only, no cells — render monochrome from text lines
+    ctx.fillStyle = fgColor
+    const lines = frame.text.split('\n')
+    for (let row = 0; row < lines.length; row++) {
+      const line = lines[row]
+      for (let col = 0; col < line.length; col++) {
+        const ch = line[col]
+        if (ch === ' ') continue
+        ctx.fillText(ch, col * charWidth, row * lineHeight)
+      }
     }
   }
 }
@@ -128,32 +140,50 @@ export function renderTypewriterFrame(
   ctx.textBaseline = 'top'
 
   const cells = frame.cells
-  // Flatten to row-major linear index for partial reveal
   let charIndex = 0
 
-  for (let row = 0; row < cells.length; row++) {
-    const rowCells = cells[row]
-    for (let col = 0; col < rowCells.length; col++) {
-      if (charIndex >= revealCount) {
-        // Draw cursor at this position if requested
-        if (showCursor && charIndex === revealCount) {
-          ctx.fillStyle = fgColor
-          ctx.fillText('|', col * charWidth, row * lineHeight)
+  if (cells.length > 0) {
+    // Full AsciiFrame with per-cell data
+    for (let row = 0; row < cells.length; row++) {
+      const rowCells = cells[row]
+      for (let col = 0; col < rowCells.length; col++) {
+        if (charIndex >= revealCount) {
+          if (showCursor && charIndex === revealCount) {
+            ctx.fillStyle = fgColor
+            ctx.fillText('|', col * charWidth, row * lineHeight)
+          }
+          return
         }
-        return
+
+        const cell = rowCells[col]
+        if (colorMode === 'colored' || colorMode === 'monoscale') {
+          ctx.fillStyle = `rgb(${cell.r},${cell.g},${cell.b})`
+        } else {
+          ctx.fillStyle = fgColor
+        }
+        ctx.fillText(cell.char, col * charWidth, row * lineHeight)
+        charIndex++
       }
-
-      const cell = rowCells[col]
-
-      // Set color based on mode
-      if (colorMode === 'colored' || colorMode === 'monoscale') {
-        ctx.fillStyle = `rgb(${cell.r},${cell.g},${cell.b})`
-      } else {
-        ctx.fillStyle = fgColor
+    }
+  } else if (frame.text) {
+    // Compact format: text-only, render monochrome
+    ctx.fillStyle = fgColor
+    const lines = frame.text.split('\n')
+    for (let row = 0; row < lines.length; row++) {
+      const line = lines[row]
+      for (let col = 0; col < line.length; col++) {
+        if (charIndex >= revealCount) {
+          if (showCursor && charIndex === revealCount) {
+            ctx.fillText('|', col * charWidth, row * lineHeight)
+          }
+          return
+        }
+        const ch = line[col]
+        if (ch !== ' ') {
+          ctx.fillText(ch, col * charWidth, row * lineHeight)
+        }
+        charIndex++
       }
-
-      ctx.fillText(cell.char, col * charWidth, row * lineHeight)
-      charIndex++
     }
   }
 }

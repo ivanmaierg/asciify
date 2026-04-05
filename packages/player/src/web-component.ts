@@ -202,16 +202,30 @@ export class AsciiPlayerElement extends HTMLElement {
       theme?.bgColor ?? '#000000',
     )
 
-    // Auto-size canvas (PLR-09): width-driven, height from frame aspect ratio
+    // Auto-size canvas from metadata + font metrics
     const meta = (data as { metadata: { rows: number; columns: number; fps?: number } }).metadata
-    const width = this.clientWidth || 640
-    const height =
-      meta.rows && meta.columns
-        ? Math.round(width * (meta.rows / meta.columns))
-        : Math.round(width * 0.5)
+    const font = this.getAttribute('font') ?? '14px monospace'
+    const fontSize = parseFloat(font)
+    const lineHeight = fontSize * 1.2
+
+    // Measure actual character width with the target font
+    this._canvas.width = 1
+    this._canvas.height = 1
+    const measureCtx = this._canvas.getContext('2d')!
+    measureCtx.font = font
+    const charWidth = measureCtx.measureText('M').width
+
+    // Size canvas to fit content exactly
+    const width = meta.columns
+      ? Math.ceil(meta.columns * charWidth)
+      : (this.clientWidth || 640)
+    const height = meta.rows
+      ? Math.ceil(meta.rows * lineHeight)
+      : Math.round(width * 0.5)
 
     this._canvas.width = width
     this._canvas.height = height
+    this._canvas.style.maxWidth = '100%'
 
     // Build options
     const fpsAttr = this.getAttribute('fps')
