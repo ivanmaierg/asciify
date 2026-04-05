@@ -58,3 +58,9 @@ Thumbs.db
 
 # Package build artifacts
 packages/*/dist/
+
+# Generated public assets (copied from package builds)
+apps/web/public/player-bundle.js
+
+# Playwright test results
+packages/player/test-results/
